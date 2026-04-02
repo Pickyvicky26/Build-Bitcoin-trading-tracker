@@ -1,0 +1,46 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1440" height="900" fill="#050816"/>
+  <circle cx="1180" cy="140" r="220" fill="#5FA8FF" fill-opacity="0.12"/>
+  <circle cx="240" cy="760" r="240" fill="#2BE38C" fill-opacity="0.08"/>
+  <rect x="88" y="72" width="1264" height="756" rx="32" fill="#081126" stroke="#223150"/>
+  <text x="140" y="132" fill="#F5F7FF" font-family="Space Grotesk, sans-serif" font-size="34" font-weight="700">Velocity Desk</text>
+  <text x="140" y="166" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="18">BTC/USD market terminal • multi-timeframe stack • backtest edge • risk controls</text>
+
+  <rect x="140" y="214" width="368" height="174" rx="24" fill="#0E1A38" stroke="#223150"/>
+  <text x="172" y="256" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Spot Price</text>
+  <text x="172" y="318" fill="#F5F7FF" font-family="Space Grotesk, sans-serif" font-size="56" font-weight="700">$68,420</text>
+  <text x="172" y="354" fill="#2BE38C" font-family="IBM Plex Mono, monospace" font-size="20">+1.84% daily drift</text>
+  <rect x="364" y="238" width="112" height="36" rx="18" fill="#17345F"/>
+  <text x="397" y="261" fill="#D8E8FF" font-family="IBM Plex Mono, monospace" font-size="16">LIVE</text>
+
+  <rect x="532" y="214" width="318" height="174" rx="24" fill="#0E1A38" stroke="#223150"/>
+  <text x="564" y="256" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Desk Bias</text>
+  <text x="564" y="310" fill="#2BE38C" font-family="Space Grotesk, sans-serif" font-size="48" font-weight="700">Strong Buy</text>
+  <text x="564" y="348" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="18">Score 78 / 100 • Confidence 84%</text>
+
+  <rect x="874" y="214" width="338" height="174" rx="24" fill="#0E1A38" stroke="#223150"/>
+  <text x="906" y="256" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Forecast Stack</text>
+  <text x="906" y="302" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="20">15m  +0.42%  64%</text>
+  <text x="906" y="334" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="20">1h   +1.18%  67%</text>
+  <text x="906" y="366" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="20">4h   +2.46%  61%</text>
+
+  <rect x="140" y="420" width="734" height="286" rx="24" fill="#0E1A38" stroke="#223150"/>
+  <text x="172" y="458" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Market Structure</text>
+  <path d="M184 612 L268 556 L352 574 L436 494 L520 516 L604 448 L688 474 L772 432 L846 452" stroke="#5FA8FF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M184 634 L268 626 L352 616 L436 602 L520 590 L604 576 L688 566 L772 558 L846 544" stroke="#F5B83D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+  <path d="M846 452 L892 432 L940 426 L988 410" stroke="#2BE38C" stroke-width="4" stroke-dasharray="10 10" stroke-linecap="round"/>
+  <line x1="184" y1="666" x2="846" y2="666" stroke="#223150"/>
+  <line x1="184" y1="534" x2="846" y2="534" stroke="#223150"/>
+  <line x1="184" y1="468" x2="846" y2="468" stroke="#223150"/>
+
+  <rect x="908" y="420" width="304" height="286" rx="24" fill="#0E1A38" stroke="#223150"/>
+  <text x="940" y="458" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Risk Overlay</text>
+  <text x="940" y="506" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="18">Risk capital      $250</text>
+  <text x="940" y="540" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="18">Suggested size    0.412 BTC</text>
+  <text x="940" y="574" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="18">Reward / risk     1.94 R</text>
+  <text x="940" y="608" fill="#F5F7FF" font-family="IBM Plex Mono, monospace" font-size="18">Daily stop        $750</text>
+  <rect x="940" y="638" width="168" height="38" rx="19" fill="#163423"/>
+  <text x="974" y="662" fill="#2BE38C" font-family="IBM Plex Mono, monospace" font-size="16">ACTIVE PLAY</text>
+
+  <text x="140" y="782" fill="#96A0BC" font-family="IBM Plex Mono, monospace" font-size="16">Portfolio-ready static frontend • live market dashboard • modularized analytics</text>
+</svg>

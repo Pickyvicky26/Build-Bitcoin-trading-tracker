@@ -1,0 +1,20 @@
+{
+  "name": "velocity-desk",
+  "version": "1.0.0",
+  "description": "Hedge-fund-inspired BTC/USD trading terminal with live order-flow, multi-timeframe scoring, scenario forecasts, and risk overlays.",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 4173",
+    "start": "python3 -m http.server 4173"
+  },
+  "keywords": [
+    "bitcoin",
+    "btc",
+    "trading",
+    "dashboard",
+    "order-flow",
+    "backtesting",
+    "frontend"
+  ],
+  "license": "MIT"
+}

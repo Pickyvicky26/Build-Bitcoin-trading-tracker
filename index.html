@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velocity Desk | BTC Trader</title>
+  <meta name="description" content="Velocity Desk is a hedge-fund-inspired Bitcoin trading terminal with live BTC/USD market data, multi-timeframe signals, order-flow analytics, scenario forecasts, backtest stats, and risk overlays.">
+  <meta name="theme-color" content="#050816">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-soft: #0a1124;
+      --surface: rgba(12, 18, 38, 0.88);
+      --surface-strong: rgba(17, 27, 55, 0.96);
+      --surface-soft: rgba(255, 255, 255, 0.04);
+      --border: rgba(148, 163, 184, 0.18);
+      --text: #f5f7ff;
+      --muted: #96a0bc;
+      --line: rgba(255, 255, 255, 0.12);
+      --buy: #2be38c;
+      --buy-soft: rgba(43, 227, 140, 0.16);
+      --sell: #ff6a78;
+      --sell-soft: rgba(255, 106, 120, 0.18);
+      --warn: #f5b83d;
+      --warn-soft: rgba(245, 184, 61, 0.16);
+      --accent: #5fa8ff;
+      --accent-soft: rgba(95, 168, 255, 0.18);
+      --shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(95, 168, 255, 0.22), transparent 28%),
+        radial-gradient(circle at 90% 10%, rgba(43, 227, 140, 0.12), transparent 26%),
+        radial-gradient(circle at 50% 100%, rgba(255, 106, 120, 0.08), transparent 24%),
+        linear-gradient(180deg, #040714 0%, #071020 42%, #050816 100%);
+      letter-spacing: -0.01em;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
+      opacity: 0.35;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .shell {
+      width: min(1380px, calc(100vw - 24px));
+      margin: 18px auto 36px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 22px 24px 18px;
+      background: rgba(7, 12, 26, 0.76);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f5b83d, #ff8f4f);
+      box-shadow: 0 0 18px rgba(245, 184, 61, 0.6);
+    }
+
+    .brand h1 {
+      margin-top: 12px;
+      font-size: clamp(2rem, 3.4vw, 3.4rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .brand p {
+      margin-top: 10px;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.6;
+    }
+
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      min-width: 300px;
+    }
+
+    .status-chip {
+      min-width: 132px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .status-label {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .status-value {
+      margin-top: 8px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.98rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #6b7280;
+      box-shadow: 0 0 0 0 rgba(107, 114, 128, 0.4);
+    }
+
+    .status-dot.live {
+      background: var(--buy);
+      animation: pulse 1.8s infinite;
+      box-shadow: 0 0 0 0 rgba(43, 227, 140, 0.55);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(43, 227, 140, 0.45); }
+      70% { box-shadow: 0 0 0 10px rgba(43, 227, 140, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(43, 227, 140, 0); }
+    }
+
+    .hero-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .content-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .lower-grid {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 16px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(14, 22, 45, 0.96) 0%, rgba(10, 16, 34, 0.96) 100%);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    }
+
+    .card-shell {
+      padding: 20px;
+    }
+
+    .price-card {
+      background:
+        radial-gradient(circle at top right, rgba(95, 168, 255, 0.18), transparent 34%),
+        linear-gradient(160deg, rgba(16, 28, 58, 1) 0%, rgba(10, 18, 38, 1) 100%);
+    }
+
+    .signal-card {
+      background:
+        radial-gradient(circle at top left, rgba(43, 227, 140, 0.14), transparent 30%),
+        linear-gradient(160deg, rgba(14, 25, 46, 1) 0%, rgba(8, 15, 31, 1) 100%);
+    }
+
+    .risk-card {
+      background:
+        radial-gradient(circle at top left, rgba(255, 106, 120, 0.12), transparent 28%),
+        linear-gradient(160deg, rgba(15, 22, 41, 1) 0%, rgba(8, 14, 29, 1) 100%);
+    }
+
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .section-heading h2,
+    .section-heading h3 {
+      font-size: 1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .section-meta {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .big-price {
+      margin-top: 20px;
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .big-price strong {
+      font-size: clamp(2.6rem, 5vw, 4.8rem);
+      line-height: 0.95;
+      letter-spacing: -0.07em;
+    }
+
+    .price-change {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .price-change.buy {
+      color: var(--buy);
+      background: var(--buy-soft);
+      border-color: rgba(43, 227, 140, 0.35);
+    }
+
+    .price-change.sell {
+      color: var(--sell);
+      background: var(--sell-soft);
+      border-color: rgba(255, 106, 120, 0.35);
+    }
+
+    .metric-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 12px 13px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .metric-label {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .signal-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .signal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      margin-top: 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .signal-pill::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 14px currentColor;
+    }
+
+    .signal-pill.strong-buy,
+    .signal-pill.buy {
+      color: var(--buy);
+      background: var(--buy-soft);
+      border-color: rgba(43, 227, 140, 0.35);
+    }
+
+    .signal-pill.hold {
+      color: var(--warn);
+      background: var(--warn-soft);
+      border-color: rgba(245, 184, 61, 0.32);
+    }
+
+    .signal-pill.sell,
+    .signal-pill.strong-sell {
+      color: var(--sell);
+      background: var(--sell-soft);
+      border-color: rgba(255, 106, 120, 0.35);
+    }
+
+    .signal-meta-grid {
+      display: grid;
+      gap: 10px;
+      text-align: right;
+      min-width: 108px;
+    }
+
+    .signal-meta-grid span {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .signal-meta-grid strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+
+    .meter {
+      margin-top: 18px;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(255, 106, 120, 0.18), rgba(245, 184, 61, 0.12), rgba(43, 227, 140, 0.18));
+      position: relative;
+    }
+
+    .meter::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255, 106, 120, 0.35) 0%, rgba(245, 184, 61, 0.15) 50%, rgba(43, 227, 140, 0.35) 100%);
+      opacity: 0.35;
+    }
+
+    .meter-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 50%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.55));
+      box-shadow: 0 0 28px rgba(255, 255, 255, 0.22);
+      transition: width 0.25s ease;
+    }
+
+    .signal-narrative,
+    .card-copy {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.55;
+    }
+
+    .risk-grid {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .risk-state {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tf-btn,
+    .ghost-btn,
+    .action-btn {
+      padding: 10px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .tf-btn.active {
+      background: var(--accent-soft);
+      color: #cfe5ff;
+      border-color: rgba(95, 168, 255, 0.4);
+      box-shadow: inset 0 0 0 1px rgba(95, 168, 255, 0.12);
+    }
+
+    .ghost-btn:hover,
+    .tf-btn:hover,
+    .action-btn:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      opacity: 0.92;
+    }
+
+    .action-btn {
+      width: 100%;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(95, 168, 255, 0.22), rgba(43, 227, 140, 0.18));
+      border-color: rgba(95, 168, 255, 0.28);
+    }
+
+    .chart-wrap {
+      margin-top: 14px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+      overflow: hidden;
+    }
+
+    #priceChart {
+      display: block;
+      width: 100%;
+      height: 360px;
+    }
+
+    .chart-summary {
+      padding: 14px 18px 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 0 18px 14px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend i {
+      display: inline-block;
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--text);
+    }
+
+    .legend i.live-line {
+      background: var(--accent);
+    }
+
+    .legend i.ema-line {
+      background: rgba(255, 255, 255, 0.56);
+    }
+
+    .legend i.forecast-line {
+      background: var(--buy);
+      border-bottom: 1px dashed rgba(43, 227, 140, 0.6);
+    }
+
+    .forecast-grid,
+    .playbook-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .forecast-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .forecast-card {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .forecast-card strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 1.45rem;
+      letter-spacing: -0.05em;
+    }
+
+    .forecast-card .move {
+      margin-top: 8px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .forecast-card .note {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+
+    .forecast-card.buy {
+      background: var(--buy-soft);
+      border-color: rgba(43, 227, 140, 0.26);
+    }
+
+    .forecast-card.sell {
+      background: var(--sell-soft);
+      border-color: rgba(255, 106, 120, 0.26);
+    }
+
+    .forecast-card.hold {
+      background: var(--warn-soft);
+      border-color: rgba(245, 184, 61, 0.24);
+    }
+
+    .footnote {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.55;
+    }
+
+    .factor-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .factor {
+      padding: 13px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .factor-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .factor-head span:last-child {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .factor-bar {
+      margin-top: 12px;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .factor-fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--sell), var(--warn), var(--buy));
+    }
+
+    .factor-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .playbook-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .play {
+      padding: 15px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .play.active {
+      border-color: rgba(95, 168, 255, 0.38);
+      background: rgba(95, 168, 255, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(95, 168, 255, 0.1);
+    }
+
+    .play-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.94rem;
+      font-weight: 600;
+    }
+
+    .play-tag {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .play-grid {
+      margin-top: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .play-grid div {
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .play-grid span {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .play-grid strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.96rem;
+    }
+
+    .play-copy {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .alerts-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: rgba(95, 168, 255, 0.45);
+      box-shadow: 0 0 0 3px rgba(95, 168, 255, 0.12);
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 0.9rem;
+    }
+
+    .toggle-copy span {
+      display: block;
+    }
+
+    .toggle-copy small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+    }
+
+    .toggle {
+      position: relative;
+      width: 54px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .toggle::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.2s ease;
+    }
+
+    .toggle.active {
+      background: linear-gradient(90deg, rgba(95, 168, 255, 0.36), rgba(43, 227, 140, 0.36));
+    }
+
+    .toggle.active::before {
+      transform: translateX(24px);
+    }
+
+    .alert-status {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .tape-list,
+    .notes-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tape-line,
+    .note-line {
+      padding: 11px 13px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tape-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .tape-line time {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tape-line.info { border-color: rgba(95, 168, 255, 0.22); }
+    .tape-line.buy { border-color: rgba(43, 227, 140, 0.24); }
+    .tape-line.sell { border-color: rgba(255, 106, 120, 0.24); }
+    .tape-line.warn { border-color: rgba(245, 184, 61, 0.24); }
+    .tape-line.error { border-color: rgba(255, 106, 120, 0.28); background: rgba(255, 106, 120, 0.08); }
+
+    .note-line {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .split-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .inline-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .subtle-btn {
+      padding: 10px 13px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .subtle-btn:hover {
+      border-color: rgba(255, 255, 255, 0.24);
+    }
+
+    .board-grid,
+    .backtest-grid,
+    .risk-sizing-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .board-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .backtest-grid,
+    .risk-sizing-grid {
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    }
+
+    .board-card,
+    .backtest-stat,
+    .risk-stat {
+      padding: 14px 15px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .board-card span,
+    .backtest-stat span,
+    .risk-stat span {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .board-card strong,
+    .backtest-stat strong,
+    .risk-stat strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1rem;
+    }
+
+    .mtf-grid,
+    .probability-list,
+    .journal-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mtf-row,
+    .probability-row,
+    .journal-entry {
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .mtf-row {
+      display: grid;
+      grid-template-columns: 0.8fr 1fr 0.8fr 0.8fr;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .mtf-row strong,
+    .probability-row strong {
+      font-size: 0.96rem;
+    }
+
+    .status-badge,
+    .journal-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(255, 255, 255, 0.05);
+      width: fit-content;
+    }
+
+    .status-badge::before,
+    .journal-pill::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-badge.buy,
+    .journal-pill.win,
+    .journal-pill.buy {
+      color: var(--buy);
+      background: var(--buy-soft);
+      border-color: rgba(43, 227, 140, 0.26);
+    }
+
+    .status-badge.sell,
+    .journal-pill.loss,
+    .journal-pill.sell {
+      color: var(--sell);
+      background: var(--sell-soft);
+      border-color: rgba(255, 106, 120, 0.26);
+    }
+
+    .status-badge.hold,
+    .journal-pill.open,
+    .journal-pill.hold {
+      color: var(--warn);
+      background: var(--warn-soft);
+      border-color: rgba(245, 184, 61, 0.22);
+    }
+
+    .mtf-summary,
+    .flow-copy,
+    .risk-copy {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .probability-row {
+      display: grid;
+      grid-template-columns: 0.8fr repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      align-items: center;
+      font-size: 0.84rem;
+    }
+
+    .probability-row span,
+    .journal-metrics span {
+      display: block;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .probability-row strong,
+    .journal-metrics strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.9rem;
+    }
+
+    .journal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .journal-head strong {
+      display: block;
+      font-size: 0.96rem;
+    }
+
+    .journal-head time {
+      display: block;
+      margin-top: 5px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .journal-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .journal-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.45;
+    }
+
+    .stack-tight {
+      display: grid;
+      gap: 12px;
+    }
+
+    .legend i.candle-line {
+      background: linear-gradient(90deg, var(--buy), var(--sell));
+    }
+
+    .legend i.vwap-line {
+      background: #f5b83d;
+    }
+
+    .legend i.marker-line {
+      background: #ffffff;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: min(420px, calc(100vw - 32px));
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(12, 18, 38, 0.95);
+      box-shadow: var(--shadow);
+      display: none;
+      z-index: 40;
+      line-height: 1.45;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fade-in 0.18s ease;
+    }
+
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .empty {
+      padding: 26px 18px;
+      border-radius: 18px;
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .up { color: var(--buy); }
+    .down { color: var(--sell); }
+    .flat { color: var(--warn); }
+
+    @media (max-width: 1120px) {
+      .hero-grid,
+      .content-grid,
+      .lower-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-strip {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        width: min(100vw - 12px, 100%);
+        margin: 8px auto 20px;
+      }
+
+      .topbar,
+      .card-shell {
+        padding: 16px;
+      }
+
+      .metric-grid,
+      .risk-grid,
+      .forecast-grid,
+      .play-grid,
+      .split-grid,
+      .field-grid,
+      .board-grid,
+      .probability-row,
+      .mtf-row,
+      .journal-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .signal-row,
+      .section-heading,
+      .tape-line {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .signal-meta-grid {
+        text-align: left;
+      }
+
+      .status-strip {
+        min-width: 0;
+      }
+
+      #priceChart {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="eyebrow">BTC/USD High-Speed Desk</div>
+        <h1>Velocity Desk</h1>
+        <p>Live Bitcoin tracking with multi-timeframe confirmation, order-flow reads, backtested probabilities, risk-sized playbooks, webhook-backed durable alerts, and a signal journal.</p>
+      </div>
+      <div class="status-strip">
+        <div class="status-chip">
+          <span class="status-label">Feed</span>
+          <div class="status-value">
+            <span class="status-dot" id="feedDot"></span>
+            <strong id="feedStatus">Connecting</strong>
+          </div>
+        </div>
+        <div class="status-chip">
+          <span class="status-label">Desk Clock</span>
+          <div class="status-value"><strong id="deskClock">--:--:--</strong></div>
+        </div>
+        <div class="status-chip">
+          <span class="status-label">Last Sync</span>
+          <div class="status-value"><strong id="lastSync">Booting</strong></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="hero-grid">
+      <article class="card price-card">
+        <div class="card-shell">
+          <div class="section-heading">
+            <div>
+              <div class="section-meta">Live Market</div>
+              <h2>Bitcoin Tape</h2>
+            </div>
+            <div class="section-meta" id="marketMode">Awaiting feed</div>
+          </div>
+
+          <div class="big-price">
+            <strong id="priceValue">$--</strong>
+            <span class="price-change" id="priceChange">--</span>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric">
+              <span class="metric-label">Best Bid</span>
+              <div class="metric-value" id="bidValue">$--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Best Ask</span>
+              <div class="metric-value" id="askValue">$--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Spread</span>
+              <div class="metric-value" id="spreadValue">$--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">24H Volume</span>
+              <div class="metric-value" id="volumeValue">--</div>
+            </div>
+          </div>
+
+          <p class="card-copy" id="priceNarrative">Waiting for live BTC/USD quotes from Coinbase.</p>
+        </div>
+      </article>
+
+      <article class="card signal-card">
+        <div class="card-shell">
+          <div class="signal-row">
+            <div>
+              <div class="section-meta">Execution Bias</div>
+              <div class="signal-pill hold" id="signalPill">Calibrating</div>
+            </div>
+            <div class="signal-meta-grid">
+              <div>
+                <span>Score</span>
+                <strong id="signalScore">--</strong>
+              </div>
+              <div>
+                <span>Confidence</span>
+                <strong id="confidenceValue">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="meter">
+            <div class="meter-fill" id="signalMeterFill"></div>
+          </div>
+
+          <p class="signal-narrative" id="signalNarrative">The desk will mark buy, hold, or sell bias once it has enough candles and live ticks to score structure.</p>
+        </div>
+      </article>
+
+      <article class="card risk-card">
+        <div class="card-shell">
+          <div class="section-heading">
+            <div>
+              <div class="section-meta">Risk Control</div>
+              <h2>Pressure Gauge</h2>
+            </div>
+            <div class="section-meta" id="riskMode">Standby</div>
+          </div>
+
+          <div class="risk-grid">
+            <div class="metric">
+              <span class="metric-label">ATR</span>
+              <div class="metric-value" id="atrValue">$--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Realized Vol</span>
+              <div class="metric-value" id="volatilityValue">--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">24H Range</span>
+              <div class="metric-value" id="rangeValue">$--</div>
+            </div>
+            <div class="metric">
+              <span class="metric-label">Tape Speed</span>
+              <div class="metric-value" id="tapeSpeedValue">--</div>
+            </div>
+          </div>
+
+          <div class="risk-state" id="riskNarrative">Volatility, range expansion, and live trade tempo will show here after the first market sync.</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <div class="stack">
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Chart Engine</div>
+                <h2>Structure And Forecast</h2>
+              </div>
+              <div class="controls">
+                <button class="tf-btn active" data-timeframe="1H">1H</button>
+                <button class="tf-btn" data-timeframe="6H">6H</button>
+                <button class="tf-btn" data-timeframe="24H">24H</button>
+                <button class="tf-btn" data-timeframe="7D">7D</button>
+                <button class="ghost-btn" id="refreshBtn">Refresh</button>
+              </div>
+            </div>
+
+            <div class="chart-wrap">
+              <svg id="priceChart" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-label="BTC price chart"></svg>
+              <div class="legend">
+                <span><i class="candle-line"></i> Candles</span>
+                <span><i class="ema-line"></i> EMA 21</span>
+                <span><i class="vwap-line"></i> VWAP</span>
+                <span><i class="forecast-line"></i> Forecast path</span>
+                <span><i class="marker-line"></i> Journal markers</span>
+              </div>
+              <div class="chart-summary" id="chartSummary">Loading BTC market structure.</div>
+            </div>
+          </div>
+        </article>
+
+        <div class="split-grid">
+          <article class="card">
+            <div class="card-shell">
+              <div class="section-heading">
+                <div>
+                  <div class="section-meta">Multi-Timeframe Stack</div>
+                  <h3>Confirmation Board</h3>
+                </div>
+                <div class="section-meta">5m / 15m / 1h / 4h</div>
+              </div>
+              <div class="mtf-grid" id="confirmationGrid">
+                <div class="empty">Timeframe confirmations will appear after the first sync.</div>
+              </div>
+              <div class="mtf-summary" id="confirmationSummary">The desk is waiting for enough structure to stack confirmations.</div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-shell">
+              <div class="section-heading">
+                <div>
+                  <div class="section-meta">Order Flow</div>
+                  <h3>Book And Tape Pressure</h3>
+                </div>
+                <div class="section-meta">Top book + live ticks</div>
+              </div>
+              <div class="board-grid" id="flowGrid">
+                <div class="empty">Order-flow metrics will appear after the first book snapshot.</div>
+              </div>
+              <div class="flow-copy" id="flowNarrative">Waiting for bid, ask, delta, and liquidity skew.</div>
+            </div>
+          </article>
+        </div>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Prediction Deck</div>
+                <h3>Short-Horizon Scenarios</h3>
+              </div>
+              <div class="section-meta">15m / 1h / 4h</div>
+            </div>
+            <div class="forecast-grid" id="forecastGrid">
+              <div class="empty">Waiting for enough price history to project the next moves.</div>
+            </div>
+            <p class="footnote">The forecast now blends multi-timeframe trend alignment, order-flow pressure, and rolling backtest probabilities from historical signal outcomes. It is still a scenario engine, not guaranteed financial advice.</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Backtest Lab</div>
+                <h3>Probability Engine</h3>
+              </div>
+              <div class="section-meta">Rolling 5m signal history</div>
+            </div>
+            <div class="backtest-grid" id="backtestSummary">
+              <div class="empty">Backtest stats will load after the first market sync.</div>
+            </div>
+            <div class="probability-list" id="probabilityList">
+              <div class="empty">Historical outcome rows will appear here.</div>
+            </div>
+            <p class="footnote">These stats replay the live signal core on recent BTC history and compare the result to actual forward returns. Use them as a calibration layer for confidence.</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack">
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Why The Desk Thinks That</div>
+                <h3>Execution Factors</h3>
+              </div>
+              <div class="section-meta" id="factorHint">Multi-input stack</div>
+            </div>
+            <div class="factor-list" id="factorList">
+              <div class="empty">Factors will populate after the model builds.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Trader Playbook</div>
+                <h3>Entry, Stop, Target</h3>
+              </div>
+              <div class="section-meta">Rule-based + sized</div>
+            </div>
+            <div class="playbook-grid" id="playbookGrid">
+              <div class="empty">The playbook needs candles before it can map entries and exits.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Risk Lab</div>
+                <h3>Position Sizing And Lockout</h3>
+              </div>
+              <div class="section-meta">Account-aware</div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="accountSizeInput">Account Size</label>
+                <input type="number" step="0.01" id="accountSizeInput" placeholder="Example: 25000">
+              </div>
+              <div class="field">
+                <label for="riskPctInput">Risk Per Trade %</label>
+                <input type="number" step="0.01" id="riskPctInput" placeholder="Example: 1">
+              </div>
+              <div class="field">
+                <label for="dailyLossPctInput">Max Daily Loss %</label>
+                <input type="number" step="0.01" id="dailyLossPctInput" placeholder="Example: 3">
+              </div>
+              <div class="field">
+                <label for="dayPnlInput">Today's Realized P/L</label>
+                <input type="number" step="0.01" id="dayPnlInput" placeholder="Example: -420">
+              </div>
+            </div>
+
+            <div class="inline-actions">
+              <button class="action-btn" id="saveRiskBtn" type="button">Update Risk Plan</button>
+            </div>
+            <div class="risk-copy" id="riskPlanSummary">Set account and risk values to turn the playbook into sized trades.</div>
+            <div class="risk-sizing-grid" id="riskSizingGrid">
+              <div class="empty">Risk sizing metrics will appear here.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Alert Relay</div>
+                <h3>Durable Alerts</h3>
+              </div>
+              <div class="section-meta">Browser + webhook</div>
+            </div>
+
+            <div class="alerts-grid">
+              <div class="field">
+                <label for="buyBelowInput">Buy Below</label>
+                <input type="number" step="0.01" id="buyBelowInput" placeholder="Example: 84250">
+              </div>
+              <div class="field">
+                <label for="sellAboveInput">Sell Above</label>
+                <input type="number" step="0.01" id="sellAboveInput" placeholder="Example: 87300">
+              </div>
+              <div class="field">
+                <label for="webhookUrlInput">Webhook URL</label>
+                <input type="url" id="webhookUrlInput" placeholder="https://your-alert-endpoint.example">
+              </div>
+
+              <div class="toggle-row" data-toggle="notifications">
+                <div class="toggle-copy">
+                  <span>Browser notifications</span>
+                  <small>Pop a desktop alert when the desk sees a threshold hit.</small>
+                </div>
+                <button class="toggle" type="button" id="notificationsToggle" aria-label="Toggle browser notifications"></button>
+              </div>
+
+              <div class="toggle-row" data-toggle="sound">
+                <div class="toggle-copy">
+                  <span>Sound cue</span>
+                  <small>Play a short tone for alerts and sharp signal changes.</small>
+                </div>
+                <button class="toggle" type="button" id="soundToggle" aria-label="Toggle sound alerts"></button>
+              </div>
+
+              <div class="toggle-row" data-toggle="signalAlerts">
+                <div class="toggle-copy">
+                  <span>Signal-change alerts</span>
+                  <small>Alert when the desk flips between buy, hold, and sell bias.</small>
+                </div>
+                <button class="toggle" type="button" id="signalAlertsToggle" aria-label="Toggle signal change alerts"></button>
+              </div>
+
+              <div class="toggle-row" data-toggle="webhook">
+                <div class="toggle-copy">
+                  <span>Webhook relay</span>
+                  <small>Queue alerts in local storage and retry delivery to your endpoint until they go through.</small>
+                </div>
+                <button class="toggle" type="button" id="webhookToggle" aria-label="Toggle webhook relay"></button>
+              </div>
+            </div>
+
+            <div class="inline-actions">
+              <button class="action-btn" id="applyAlertsBtn" type="button">Arm Alert Rules</button>
+              <button class="subtle-btn" id="testWebhookBtn" type="button">Test Webhook</button>
+            </div>
+            <div class="alert-status" id="alertStatus">No thresholds armed yet.</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="lower-grid">
+      <article class="card">
+        <div class="card-shell">
+          <div class="section-heading">
+            <div>
+              <div class="section-meta">Speed Tape</div>
+              <h3>Live Desk Log</h3>
+            </div>
+            <div class="section-meta">Last 18 events</div>
+          </div>
+          <div class="tape-list" id="tapeList">
+            <div class="empty">Connecting to the market feed.</div>
+          </div>
+        </div>
+      </article>
+
+      <div class="stack">
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Desk Notes</div>
+                <h3>What To Watch</h3>
+              </div>
+              <div class="section-meta">Human-readable</div>
+            </div>
+            <div class="notes-list" id="notesList">
+              <div class="empty">Notes will appear after the desk scores the tape.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-shell">
+            <div class="section-heading">
+              <div>
+                <div class="section-meta">Execution Journal</div>
+                <h3>Signal Outcomes</h3>
+              </div>
+              <div class="section-meta">Auto-logged</div>
+            </div>
+            <div class="journal-list" id="journalList">
+              <div class="empty">Signal changes and outcomes will be recorded here.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

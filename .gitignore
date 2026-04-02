@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+.vscode/
+
+# Legacy scratch prototypes kept locally but excluded from the portfolio repo.
+Fin-4.HTML
+finhub.html
