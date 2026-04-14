@@ -3,66 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Velocity Desk | BTC Trader</title>
-  <meta name="description" content="Velocity Desk is a hedge-fund-inspired Bitcoin trading terminal with live BTC/USD market data, multi-timeframe signals, order-flow analytics, scenario forecasts, backtest stats, and risk overlays.">
-  <meta name="theme-color" content="#050816">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <title>Velocity Desk Scratch | BTC Trader</title>
+  <meta name="description" content="A rebuilt Bitcoin trading desk with seeded fallback data, live BTC tracking, multi-timeframe signals, backtest stats, risk sizing, alerts, and trader-style forecasts.">
+  <meta name="theme-color" content="#0b1220">
   <style>
     :root {
-      --bg: #050816;
-      --bg-soft: #0a1124;
-      --surface: rgba(12, 18, 38, 0.88);
-      --surface-strong: rgba(17, 27, 55, 0.96);
-      --surface-soft: rgba(255, 255, 255, 0.04);
-      --border: rgba(148, 163, 184, 0.18);
-      --text: #f5f7ff;
-      --muted: #96a0bc;
-      --line: rgba(255, 255, 255, 0.12);
-      --buy: #2be38c;
-      --buy-soft: rgba(43, 227, 140, 0.16);
-      --sell: #ff6a78;
-      --sell-soft: rgba(255, 106, 120, 0.18);
-      --warn: #f5b83d;
-      --warn-soft: rgba(245, 184, 61, 0.16);
-      --accent: #5fa8ff;
-      --accent-soft: rgba(95, 168, 255, 0.18);
-      --shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
-      --radius-xl: 24px;
-      --radius-lg: 18px;
-      --radius-md: 14px;
+      color-scheme: dark;
+      --bg: #0b1220;
+      --panel: #111b2f;
+      --panel-2: #15213a;
+      --line: #2d3a57;
+      --text: #ecf3ff;
+      --muted: #9db0d0;
+      --soft: #1a2742;
+      --buy: #2dd881;
+      --sell: #ff6b6b;
+      --warn: #f7b955;
+      --blue: #6ca9ff;
+      --ink: #060b16;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    html,
+    body {
       margin: 0;
       padding: 0;
-    }
-
-    body {
-      min-height: 100vh;
-      font-family: "Space Grotesk", sans-serif;
+      min-height: 100%;
+      background: linear-gradient(180deg, #09101d 0%, #0b1220 100%);
       color: var(--text);
-      background:
-        radial-gradient(circle at 10% 0%, rgba(95, 168, 255, 0.22), transparent 28%),
-        radial-gradient(circle at 90% 10%, rgba(43, 227, 140, 0.12), transparent 26%),
-        radial-gradient(circle at 50% 100%, rgba(255, 106, 120, 0.08), transparent 24%),
-        linear-gradient(180deg, #040714 0%, #071020 42%, #050816 100%);
-      letter-spacing: -0.01em;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(circle at center, black 28%, transparent 88%);
-      opacity: 0.35;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     button,
@@ -71,1590 +43,2101 @@
     }
 
     button {
-      border: none;
       cursor: pointer;
-      transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+      border: 0;
     }
 
-    button:hover {
-      transform: translateY(-1px);
+    #vxRoot {
+      width: min(1380px, calc(100vw - 20px));
+      margin: 10px auto 24px;
+      display: block;
     }
 
-    button:active {
-      transform: translateY(0);
+    .vx-banner {
+      display: block;
+      padding: 14px 16px;
+      background: #f7b955;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 14px;
+      font: 700 14px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
     }
 
-    .shell {
-      width: min(1380px, calc(100vw - 24px));
-      margin: 18px auto 36px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: flex-start;
-      padding: 22px 24px 18px;
-      background: rgba(7, 12, 26, 0.76);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      backdrop-filter: blur(20px);
-      box-shadow: var(--shadow);
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--muted);
-    }
-
-    .eyebrow::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #f5b83d, #ff8f4f);
-      box-shadow: 0 0 18px rgba(245, 184, 61, 0.6);
-    }
-
-    .brand h1 {
+    .vx-shell {
+      display: block;
       margin-top: 12px;
-      font-size: clamp(2rem, 3.4vw, 3.4rem);
-      line-height: 0.95;
+      padding: 16px;
+      background: #0d1628;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+    }
+
+    .vx-titlebar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .vx-kicker {
+      font: 700 12px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    .vx-title {
+      margin-top: 8px;
+      font-size: clamp(2rem, 4.2vw, 3.4rem);
+      line-height: 0.96;
       letter-spacing: -0.05em;
     }
 
-    .brand p {
+    .vx-copy {
+      max-width: 760px;
       margin-top: 10px;
-      max-width: 620px;
       color: var(--muted);
-      font-size: 0.98rem;
       line-height: 1.6;
     }
 
-    .status-strip {
+    .vx-pill-row {
       display: flex;
       flex-wrap: wrap;
+      gap: 10px;
       justify-content: flex-end;
-      gap: 10px;
-      min-width: 300px;
+      align-items: stretch;
+      min-width: 280px;
     }
 
-    .status-chip {
-      min-width: 132px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
+    .vx-pill {
+      min-width: 135px;
+      padding: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
     }
 
-    .status-label {
+    .vx-pill-label {
       display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
       color: var(--muted);
     }
 
-    .status-value {
+    .vx-pill-value {
       margin-top: 8px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      font-weight: 600;
-      font-size: 0.98rem;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #6b7280;
-      box-shadow: 0 0 0 0 rgba(107, 114, 128, 0.4);
-    }
-
-    .status-dot.live {
-      background: var(--buy);
-      animation: pulse 1.8s infinite;
-      box-shadow: 0 0 0 0 rgba(43, 227, 140, 0.55);
-    }
-
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(43, 227, 140, 0.45); }
-      70% { box-shadow: 0 0 0 10px rgba(43, 227, 140, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(43, 227, 140, 0); }
-    }
-
-    .hero-grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: 1.35fr 1fr 1fr;
-      gap: 16px;
-    }
-
-    .content-grid {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
-      gap: 16px;
-      align-items: start;
-    }
-
-    .lower-grid {
-      margin-top: 16px;
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 16px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 16px;
-    }
-
-    .card {
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(14, 22, 45, 0.96) 0%, rgba(10, 16, 34, 0.96) 100%);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .card::after {
-      content: "";
-      position: absolute;
-      inset: auto 0 0 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
-    }
-
-    .card-shell {
-      padding: 20px;
-    }
-
-    .price-card {
-      background:
-        radial-gradient(circle at top right, rgba(95, 168, 255, 0.18), transparent 34%),
-        linear-gradient(160deg, rgba(16, 28, 58, 1) 0%, rgba(10, 18, 38, 1) 100%);
-    }
-
-    .signal-card {
-      background:
-        radial-gradient(circle at top left, rgba(43, 227, 140, 0.14), transparent 30%),
-        linear-gradient(160deg, rgba(14, 25, 46, 1) 0%, rgba(8, 15, 31, 1) 100%);
-    }
-
-    .risk-card {
-      background:
-        radial-gradient(circle at top left, rgba(255, 106, 120, 0.12), transparent 28%),
-        linear-gradient(160deg, rgba(15, 22, 41, 1) 0%, rgba(8, 14, 29, 1) 100%);
-    }
-
-    .section-heading {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .section-heading h2,
-    .section-heading h3 {
+      font-weight: 700;
       font-size: 1rem;
-      letter-spacing: -0.03em;
     }
 
-    .section-meta {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-    }
-
-    .big-price {
-      margin-top: 20px;
+    .vx-grid {
       display: flex;
-      align-items: flex-end;
+      flex-wrap: wrap;
       gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .big-price strong {
-      font-size: clamp(2.6rem, 5vw, 4.8rem);
-      line-height: 0.95;
-      letter-spacing: -0.07em;
-    }
-
-    .price-change {
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.78rem;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .price-change.buy {
-      color: var(--buy);
-      background: var(--buy-soft);
-      border-color: rgba(43, 227, 140, 0.35);
-    }
-
-    .price-change.sell {
-      color: var(--sell);
-      background: var(--sell-soft);
-      border-color: rgba(255, 106, 120, 0.35);
-    }
-
-    .metric-grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .metric {
-      padding: 12px 13px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .metric-label {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.66rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-    }
-
-    .metric-value {
-      margin-top: 8px;
-      font-size: 1.08rem;
-      font-weight: 600;
-    }
-
-    .signal-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .signal-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      margin-top: 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    .signal-pill::before {
-      content: "";
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: currentColor;
-      box-shadow: 0 0 14px currentColor;
-    }
-
-    .signal-pill.strong-buy,
-    .signal-pill.buy {
-      color: var(--buy);
-      background: var(--buy-soft);
-      border-color: rgba(43, 227, 140, 0.35);
-    }
-
-    .signal-pill.hold {
-      color: var(--warn);
-      background: var(--warn-soft);
-      border-color: rgba(245, 184, 61, 0.32);
-    }
-
-    .signal-pill.sell,
-    .signal-pill.strong-sell {
-      color: var(--sell);
-      background: var(--sell-soft);
-      border-color: rgba(255, 106, 120, 0.35);
-    }
-
-    .signal-meta-grid {
-      display: grid;
-      gap: 10px;
-      text-align: right;
-      min-width: 108px;
-    }
-
-    .signal-meta-grid span {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .signal-meta-grid strong {
-      display: block;
-      margin-top: 5px;
-      font-size: 1rem;
-    }
-
-    .meter {
-      margin-top: 18px;
-      height: 14px;
-      border-radius: 999px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: linear-gradient(90deg, rgba(255, 106, 120, 0.18), rgba(245, 184, 61, 0.12), rgba(43, 227, 140, 0.18));
-      position: relative;
-    }
-
-    .meter::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, rgba(255, 106, 120, 0.35) 0%, rgba(245, 184, 61, 0.15) 50%, rgba(43, 227, 140, 0.35) 100%);
-      opacity: 0.35;
-    }
-
-    .meter-fill {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 50%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.55));
-      box-shadow: 0 0 28px rgba(255, 255, 255, 0.22);
-      transition: width 0.25s ease;
-    }
-
-    .signal-narrative,
-    .card-copy {
-      margin-top: 16px;
-      color: var(--muted);
-      font-size: 0.94rem;
-      line-height: 1.55;
-    }
-
-    .risk-grid {
-      margin-top: 18px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .risk-state {
-      margin-top: 18px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      color: var(--muted);
-    }
-
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .tf-btn,
-    .ghost-btn,
-    .action-btn {
-      padding: 10px 13px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .tf-btn.active {
-      background: var(--accent-soft);
-      color: #cfe5ff;
-      border-color: rgba(95, 168, 255, 0.4);
-      box-shadow: inset 0 0 0 1px rgba(95, 168, 255, 0.12);
-    }
-
-    .ghost-btn:hover,
-    .tf-btn:hover,
-    .action-btn:hover {
-      border-color: rgba(255, 255, 255, 0.25);
-      opacity: 0.92;
-    }
-
-    .action-btn {
-      width: 100%;
-      justify-content: center;
-      background: linear-gradient(135deg, rgba(95, 168, 255, 0.22), rgba(43, 227, 140, 0.18));
-      border-color: rgba(95, 168, 255, 0.28);
-    }
-
-    .chart-wrap {
       margin-top: 14px;
-      border-radius: 22px;
-      border: 1px solid var(--border);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
-      overflow: hidden;
     }
 
-    #priceChart {
-      display: block;
-      width: 100%;
-      height: 360px;
-    }
-
-    .chart-summary {
-      padding: 14px 18px 18px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      padding: 0 18px 14px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .legend i {
-      display: inline-block;
-      width: 18px;
-      height: 2px;
-      border-radius: 999px;
-      background: var(--text);
-    }
-
-    .legend i.live-line {
-      background: var(--accent);
-    }
-
-    .legend i.ema-line {
-      background: rgba(255, 255, 255, 0.56);
-    }
-
-    .legend i.forecast-line {
-      background: var(--buy);
-      border-bottom: 1px dashed rgba(43, 227, 140, 0.6);
-    }
-
-    .forecast-grid,
-    .playbook-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .forecast-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .forecast-card {
+    .vx-card {
+      flex: 1 1 280px;
+      min-width: 280px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
       padding: 16px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
     }
 
-    .forecast-card strong {
-      display: block;
-      margin-top: 12px;
-      font-size: 1.45rem;
-      letter-spacing: -0.05em;
+    .vx-card-wide {
+      flex-basis: 560px;
     }
 
-    .forecast-card .move {
-      margin-top: 8px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.76rem;
-      text-transform: uppercase;
+    .vx-card-tall {
+      min-height: 100%;
+    }
+
+    .vx-card-label {
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
       letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
-    .forecast-card .note {
+    .vx-card-title {
+      margin-top: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .vx-price {
+      margin-top: 14px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+      font-weight: 800;
+    }
+
+    .vx-change {
+      margin-top: 8px;
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font: 700 12px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      border: 1px solid var(--line);
+      background: var(--soft);
+    }
+
+    .vx-buy {
+      color: var(--buy);
+    }
+
+    .vx-sell {
+      color: var(--sell);
+    }
+
+    .vx-hold {
+      color: var(--warn);
+    }
+
+    .vx-metrics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .vx-metric {
+      flex: 1 1 120px;
+      min-width: 120px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .vx-metric-label {
+      font: 700 10px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .vx-metric-value {
+      margin-top: 7px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .vx-note {
       margin-top: 14px;
       color: var(--muted);
-      font-size: 0.85rem;
-      line-height: 1.45;
-    }
-
-    .forecast-card.buy {
-      background: var(--buy-soft);
-      border-color: rgba(43, 227, 140, 0.26);
-    }
-
-    .forecast-card.sell {
-      background: var(--sell-soft);
-      border-color: rgba(255, 106, 120, 0.26);
-    }
-
-    .forecast-card.hold {
-      background: var(--warn-soft);
-      border-color: rgba(245, 184, 61, 0.24);
-    }
-
-    .footnote {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 0.82rem;
       line-height: 1.55;
     }
 
-    .factor-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .factor {
-      padding: 13px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .factor-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
+    .vx-signal {
+      margin-top: 14px;
+      display: inline-flex;
       align-items: center;
-      font-size: 0.92rem;
-      font-weight: 500;
-    }
-
-    .factor-head span:last-child {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.74rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .factor-bar {
-      margin-top: 12px;
-      height: 10px;
+      padding: 10px 14px;
       border-radius: 999px;
-      overflow: hidden;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-weight: 800;
+      border: 1px solid var(--line);
+      background: var(--soft);
     }
 
-    .factor-fill {
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--sell), var(--warn), var(--buy));
-    }
-
-    .factor-note {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-
-    .playbook-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .play {
-      padding: 15px 16px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .play.active {
-      border-color: rgba(95, 168, 255, 0.38);
-      background: rgba(95, 168, 255, 0.12);
-      box-shadow: inset 0 0 0 1px rgba(95, 168, 255, 0.1);
-    }
-
-    .play-title {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      font-size: 0.94rem;
-      font-weight: 600;
-    }
-
-    .play-tag {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-    }
-
-    .play-grid {
-      margin-top: 12px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .play-grid div {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .play-grid span {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.64rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .play-grid strong {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.96rem;
-    }
-
-    .play-copy {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 0.84rem;
-      line-height: 1.45;
-    }
-
-    .alerts-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .field {
-      display: grid;
-      gap: 8px;
-    }
-
-    .field label {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .field input {
+    .vx-scorebar {
+      margin-top: 14px;
       width: 100%;
-      padding: 12px 14px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
+      height: 12px;
+      border-radius: 999px;
+      background: #1a2440;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .vx-scorefill {
+      height: 100%;
+      width: 50%;
+      background: linear-gradient(90deg, var(--sell) 0%, var(--warn) 50%, var(--buy) 100%);
+    }
+
+    .vx-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .vx-btn,
+    .vx-btn-ghost,
+    .vx-input {
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
       color: var(--text);
+    }
+
+    .vx-btn,
+    .vx-btn-ghost {
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .vx-btn.active {
+      background: var(--blue);
+      color: #07101d;
+      border-color: var(--blue);
+    }
+
+    .vx-btn-ghost {
+      background: transparent;
+    }
+
+    .vx-chart {
+      width: 100%;
+      height: 280px;
+      display: block;
+      margin-top: 14px;
+      background: #0b1324;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .vx-mini-list,
+    .vx-log-list,
+    .vx-journal-list,
+    .vx-notes-list {
+      margin-top: 14px;
+      display: block;
+    }
+
+    .vx-list-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .vx-list-row:first-child {
+      border-top: 0;
+      padding-top: 0;
+    }
+
+    .vx-list-meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .vx-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 9px;
+      border-radius: 999px;
+      font: 700 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      border: 1px solid var(--line);
+      background: var(--soft);
+    }
+
+    .vx-form-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .vx-field {
+      flex: 1 1 180px;
+      min-width: 180px;
+    }
+
+    .vx-field-label {
+      display: block;
+      font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .vx-input {
+      width: 100%;
+      padding: 11px 12px;
       outline: none;
     }
 
-    .field input:focus {
-      border-color: rgba(95, 168, 255, 0.45);
-      box-shadow: 0 0 0 3px rgba(95, 168, 255, 0.12);
+    .vx-input:focus {
+      border-color: var(--blue);
     }
 
-    .toggle-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: center;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-      font-size: 0.9rem;
-    }
-
-    .toggle-copy span {
-      display: block;
-    }
-
-    .toggle-copy small {
-      display: block;
-      margin-top: 4px;
-      color: var(--muted);
-      font-size: 0.78rem;
-      line-height: 1.4;
-    }
-
-    .toggle {
-      position: relative;
-      width: 54px;
-      height: 30px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      flex: 0 0 auto;
-    }
-
-    .toggle::before {
-      content: "";
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #ffffff;
-      transition: transform 0.2s ease;
-    }
-
-    .toggle.active {
-      background: linear-gradient(90deg, rgba(95, 168, 255, 0.36), rgba(43, 227, 140, 0.36));
-    }
-
-    .toggle.active::before {
-      transform: translateX(24px);
-    }
-
-    .alert-status {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 0.84rem;
-      line-height: 1.45;
-    }
-
-    .tape-list,
-    .notes-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .tape-line,
-    .note-line {
-      padding: 11px 13px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .tape-line {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
-      font-size: 0.88rem;
-      line-height: 1.45;
-    }
-
-    .tape-line time {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .tape-line.info { border-color: rgba(95, 168, 255, 0.22); }
-    .tape-line.buy { border-color: rgba(43, 227, 140, 0.24); }
-    .tape-line.sell { border-color: rgba(255, 106, 120, 0.24); }
-    .tape-line.warn { border-color: rgba(245, 184, 61, 0.24); }
-    .tape-line.error { border-color: rgba(255, 106, 120, 0.28); background: rgba(255, 106, 120, 0.08); }
-
-    .note-line {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    .split-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
-    .field-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .inline-actions {
+    .vx-inline-actions {
+      margin-top: 12px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
 
-    .subtle-btn {
-      padding: 10px 13px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .subtle-btn:hover {
-      border-color: rgba(255, 255, 255, 0.24);
-    }
-
-    .board-grid,
-    .backtest-grid,
-    .risk-sizing-grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    .board-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .backtest-grid,
-    .risk-sizing-grid {
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    }
-
-    .board-card,
-    .backtest-stat,
-    .risk-stat {
-      padding: 14px 15px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .board-card span,
-    .backtest-stat span,
-    .risk-stat span {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.64rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .board-card strong,
-    .backtest-stat strong,
-    .risk-stat strong {
-      display: block;
-      margin-top: 8px;
-      font-size: 1rem;
-    }
-
-    .mtf-grid,
-    .probability-list,
-    .journal-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .mtf-row,
-    .probability-row,
-    .journal-entry {
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .mtf-row {
-      display: grid;
-      grid-template-columns: 0.8fr 1fr 0.8fr 0.8fr;
-      gap: 12px;
-      align-items: center;
-      font-size: 0.88rem;
-    }
-
-    .mtf-row strong,
-    .probability-row strong {
-      font-size: 0.96rem;
-    }
-
-    .status-badge,
-    .journal-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.66rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      background: rgba(255, 255, 255, 0.05);
-      width: fit-content;
-    }
-
-    .status-badge::before,
-    .journal-pill::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .status-badge.buy,
-    .journal-pill.win,
-    .journal-pill.buy {
-      color: var(--buy);
-      background: var(--buy-soft);
-      border-color: rgba(43, 227, 140, 0.26);
-    }
-
-    .status-badge.sell,
-    .journal-pill.loss,
-    .journal-pill.sell {
-      color: var(--sell);
-      background: var(--sell-soft);
-      border-color: rgba(255, 106, 120, 0.26);
-    }
-
-    .status-badge.hold,
-    .journal-pill.open,
-    .journal-pill.hold {
-      color: var(--warn);
-      background: var(--warn-soft);
-      border-color: rgba(245, 184, 61, 0.22);
-    }
-
-    .mtf-summary,
-    .flow-copy,
-    .risk-copy {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 0.86rem;
-      line-height: 1.5;
-    }
-
-    .probability-row {
-      display: grid;
-      grid-template-columns: 0.8fr repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      align-items: center;
-      font-size: 0.84rem;
-    }
-
-    .probability-row span,
-    .journal-metrics span {
-      display: block;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.64rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-    }
-
-    .probability-row strong,
-    .journal-metrics strong {
-      display: block;
-      margin-top: 6px;
-      font-size: 0.9rem;
-    }
-
-    .journal-head {
+    .vx-kv {
       display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 14px;
     }
 
-    .journal-head strong {
-      display: block;
-      font-size: 0.96rem;
-    }
-
-    .journal-head time {
-      display: block;
-      margin-top: 5px;
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 0.66rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+    .vx-kv-item {
+      font: 700 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
       color: var(--muted);
     }
 
-    .journal-metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
+    .vx-kv-item strong {
+      color: var(--text);
     }
 
-    .journal-note {
+    .vx-status {
       margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
       color: var(--muted);
-      font-size: 0.83rem;
-      line-height: 1.45;
-    }
-
-    .stack-tight {
-      display: grid;
-      gap: 12px;
-    }
-
-    .legend i.candle-line {
-      background: linear-gradient(90deg, var(--buy), var(--sell));
-    }
-
-    .legend i.vwap-line {
-      background: #f5b83d;
-    }
-
-    .legend i.marker-line {
-      background: #ffffff;
-    }
-
-    .toast {
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      max-width: min(420px, calc(100vw - 32px));
-      padding: 14px 16px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      background: rgba(12, 18, 38, 0.95);
-      box-shadow: var(--shadow);
-      display: none;
-      z-index: 40;
-      line-height: 1.45;
-    }
-
-    .toast.show {
-      display: block;
-      animation: fade-in 0.18s ease;
-    }
-
-    @keyframes fade-in {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .empty {
-      padding: 26px 18px;
-      border-radius: 18px;
-      border: 1px dashed var(--border);
-      color: var(--muted);
-      text-align: center;
       line-height: 1.5;
     }
 
-    .muted {
+    .vx-footer-note {
+      margin-top: 16px;
       color: var(--muted);
-    }
-
-    .up { color: var(--buy); }
-    .down { color: var(--sell); }
-    .flat { color: var(--warn); }
-
-    @media (max-width: 1120px) {
-      .hero-grid,
-      .content-grid,
-      .lower-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .status-strip {
-        justify-content: flex-start;
-      }
+      line-height: 1.6;
+      font-size: 0.95rem;
     }
 
     @media (max-width: 760px) {
-      .shell {
+      #vxRoot {
         width: min(100vw - 12px, 100%);
-        margin: 8px auto 20px;
+        margin: 6px auto 18px;
       }
 
-      .topbar,
-      .card-shell {
-        padding: 16px;
+      .vx-shell,
+      .vx-card,
+      .vx-banner {
+        padding: 14px;
       }
 
-      .metric-grid,
-      .risk-grid,
-      .forecast-grid,
-      .play-grid,
-      .split-grid,
-      .field-grid,
-      .board-grid,
-      .probability-row,
-      .mtf-row,
-      .journal-metrics {
-        grid-template-columns: 1fr;
+      .vx-card {
+        min-width: 100%;
       }
 
-      .signal-row,
-      .section-heading,
-      .tape-line {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .signal-meta-grid {
-        text-align: left;
-      }
-
-      .status-strip {
-        min-width: 0;
-      }
-
-      #priceChart {
-        height: 300px;
+      .vx-pill {
+        min-width: calc(50% - 5px);
       }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="topbar">
-      <div class="brand">
-        <div class="eyebrow">BTC/USD High-Speed Desk</div>
-        <h1>Velocity Desk</h1>
-        <p>Live Bitcoin tracking with multi-timeframe confirmation, order-flow reads, backtested probabilities, risk-sized playbooks, webhook-backed durable alerts, and a signal journal.</p>
-      </div>
-      <div class="status-strip">
-        <div class="status-chip">
-          <span class="status-label">Feed</span>
-          <div class="status-value">
-            <span class="status-dot" id="feedDot"></span>
-            <strong id="feedStatus">Connecting</strong>
+  <div id="vxRoot">
+    <div class="vx-banner" id="topBanner">
+      Velocity Desk scratch rebuild 20260414d | BTC/USD: <span id="topPrice">$66,953.89</span> | Feed: <span id="topFeed">Seeded</span> | Signal: <span id="topSignal">Calibrating</span> | Sync: <span id="topSync">Fallback ready</span>
+    </div>
+
+    <div class="vx-shell">
+      <div class="vx-titlebar">
+        <div>
+          <div class="vx-kicker">BTC/USD High-Speed Desk</div>
+          <div class="vx-title">Velocity Desk</div>
+          <div class="vx-copy">
+            Rebuilt from scratch as a compatibility-first trader terminal. It always opens with seeded BTC data, then upgrades to live market polling and optional WebSocket tape when the browser feed is available.
           </div>
         </div>
-        <div class="status-chip">
-          <span class="status-label">Desk Clock</span>
-          <div class="status-value"><strong id="deskClock">--:--:--</strong></div>
+
+        <div class="vx-pill-row">
+          <div class="vx-pill">
+            <span class="vx-pill-label">Build</span>
+            <div class="vx-pill-value">20260414d</div>
+          </div>
+          <div class="vx-pill">
+            <span class="vx-pill-label">Market Mode</span>
+            <div class="vx-pill-value" id="marketMode">Seeded fallback</div>
+          </div>
+          <div class="vx-pill">
+            <span class="vx-pill-label">Desk Clock</span>
+            <div class="vx-pill-value" id="deskClock">--:--:--</div>
+          </div>
+          <div class="vx-pill">
+            <span class="vx-pill-label">Last Sync</span>
+            <div class="vx-pill-value" id="lastSync">Fallback ready</div>
+          </div>
         </div>
-        <div class="status-chip">
-          <span class="status-label">Last Sync</span>
-          <div class="status-value"><strong id="lastSync">Booting</strong></div>
-        </div>
-      </div>
-    </header>
-
-    <section class="hero-grid">
-      <article class="card price-card">
-        <div class="card-shell">
-          <div class="section-heading">
-            <div>
-              <div class="section-meta">Live Market</div>
-              <h2>Bitcoin Tape</h2>
-            </div>
-            <div class="section-meta" id="marketMode">Awaiting feed</div>
-          </div>
-
-          <div class="big-price">
-            <strong id="priceValue">$--</strong>
-            <span class="price-change" id="priceChange">--</span>
-          </div>
-
-          <div class="metric-grid">
-            <div class="metric">
-              <span class="metric-label">Best Bid</span>
-              <div class="metric-value" id="bidValue">$--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">Best Ask</span>
-              <div class="metric-value" id="askValue">$--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">Spread</span>
-              <div class="metric-value" id="spreadValue">$--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">24H Volume</span>
-              <div class="metric-value" id="volumeValue">--</div>
-            </div>
-          </div>
-
-          <p class="card-copy" id="priceNarrative">Waiting for live BTC/USD quotes from Coinbase.</p>
-        </div>
-      </article>
-
-      <article class="card signal-card">
-        <div class="card-shell">
-          <div class="signal-row">
-            <div>
-              <div class="section-meta">Execution Bias</div>
-              <div class="signal-pill hold" id="signalPill">Calibrating</div>
-            </div>
-            <div class="signal-meta-grid">
-              <div>
-                <span>Score</span>
-                <strong id="signalScore">--</strong>
-              </div>
-              <div>
-                <span>Confidence</span>
-                <strong id="confidenceValue">--</strong>
-              </div>
-            </div>
-          </div>
-
-          <div class="meter">
-            <div class="meter-fill" id="signalMeterFill"></div>
-          </div>
-
-          <p class="signal-narrative" id="signalNarrative">The desk will mark buy, hold, or sell bias once it has enough candles and live ticks to score structure.</p>
-        </div>
-      </article>
-
-      <article class="card risk-card">
-        <div class="card-shell">
-          <div class="section-heading">
-            <div>
-              <div class="section-meta">Risk Control</div>
-              <h2>Pressure Gauge</h2>
-            </div>
-            <div class="section-meta" id="riskMode">Standby</div>
-          </div>
-
-          <div class="risk-grid">
-            <div class="metric">
-              <span class="metric-label">ATR</span>
-              <div class="metric-value" id="atrValue">$--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">Realized Vol</span>
-              <div class="metric-value" id="volatilityValue">--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">24H Range</span>
-              <div class="metric-value" id="rangeValue">$--</div>
-            </div>
-            <div class="metric">
-              <span class="metric-label">Tape Speed</span>
-              <div class="metric-value" id="tapeSpeedValue">--</div>
-            </div>
-          </div>
-
-          <div class="risk-state" id="riskNarrative">Volatility, range expansion, and live trade tempo will show here after the first market sync.</div>
-        </div>
-      </article>
-    </section>
-
-    <section class="content-grid">
-      <div class="stack">
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Chart Engine</div>
-                <h2>Structure And Forecast</h2>
-              </div>
-              <div class="controls">
-                <button class="tf-btn active" data-timeframe="1H">1H</button>
-                <button class="tf-btn" data-timeframe="6H">6H</button>
-                <button class="tf-btn" data-timeframe="24H">24H</button>
-                <button class="tf-btn" data-timeframe="7D">7D</button>
-                <button class="ghost-btn" id="refreshBtn">Refresh</button>
-              </div>
-            </div>
-
-            <div class="chart-wrap">
-              <svg id="priceChart" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-label="BTC price chart"></svg>
-              <div class="legend">
-                <span><i class="candle-line"></i> Candles</span>
-                <span><i class="ema-line"></i> EMA 21</span>
-                <span><i class="vwap-line"></i> VWAP</span>
-                <span><i class="forecast-line"></i> Forecast path</span>
-                <span><i class="marker-line"></i> Journal markers</span>
-              </div>
-              <div class="chart-summary" id="chartSummary">Loading BTC market structure.</div>
-            </div>
-          </div>
-        </article>
-
-        <div class="split-grid">
-          <article class="card">
-            <div class="card-shell">
-              <div class="section-heading">
-                <div>
-                  <div class="section-meta">Multi-Timeframe Stack</div>
-                  <h3>Confirmation Board</h3>
-                </div>
-                <div class="section-meta">5m / 15m / 1h / 4h</div>
-              </div>
-              <div class="mtf-grid" id="confirmationGrid">
-                <div class="empty">Timeframe confirmations will appear after the first sync.</div>
-              </div>
-              <div class="mtf-summary" id="confirmationSummary">The desk is waiting for enough structure to stack confirmations.</div>
-            </div>
-          </article>
-
-          <article class="card">
-            <div class="card-shell">
-              <div class="section-heading">
-                <div>
-                  <div class="section-meta">Order Flow</div>
-                  <h3>Book And Tape Pressure</h3>
-                </div>
-                <div class="section-meta">Top book + live ticks</div>
-              </div>
-              <div class="board-grid" id="flowGrid">
-                <div class="empty">Order-flow metrics will appear after the first book snapshot.</div>
-              </div>
-              <div class="flow-copy" id="flowNarrative">Waiting for bid, ask, delta, and liquidity skew.</div>
-            </div>
-          </article>
-        </div>
-
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Prediction Deck</div>
-                <h3>Short-Horizon Scenarios</h3>
-              </div>
-              <div class="section-meta">15m / 1h / 4h</div>
-            </div>
-            <div class="forecast-grid" id="forecastGrid">
-              <div class="empty">Waiting for enough price history to project the next moves.</div>
-            </div>
-            <p class="footnote">The forecast now blends multi-timeframe trend alignment, order-flow pressure, and rolling backtest probabilities from historical signal outcomes. It is still a scenario engine, not guaranteed financial advice.</p>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Backtest Lab</div>
-                <h3>Probability Engine</h3>
-              </div>
-              <div class="section-meta">Rolling 5m signal history</div>
-            </div>
-            <div class="backtest-grid" id="backtestSummary">
-              <div class="empty">Backtest stats will load after the first market sync.</div>
-            </div>
-            <div class="probability-list" id="probabilityList">
-              <div class="empty">Historical outcome rows will appear here.</div>
-            </div>
-            <p class="footnote">These stats replay the live signal core on recent BTC history and compare the result to actual forward returns. Use them as a calibration layer for confidence.</p>
-          </div>
-        </article>
       </div>
 
-      <div class="stack">
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Why The Desk Thinks That</div>
-                <h3>Execution Factors</h3>
-              </div>
-              <div class="section-meta" id="factorHint">Multi-input stack</div>
+      <div class="vx-grid">
+        <div class="vx-card vx-card-wide">
+          <div class="vx-card-label">Live Tape</div>
+          <div class="vx-card-title">Bitcoin Price</div>
+          <div class="vx-price" id="heroPrice">$66,953.89</div>
+          <div class="vx-change vx-hold" id="heroChange">+0.17% vs 24H open</div>
+          <div class="vx-metrics">
+            <div class="vx-metric">
+              <div class="vx-metric-label">Best Bid</div>
+              <div class="vx-metric-value" id="bestBid">$66,953.52</div>
             </div>
-            <div class="factor-list" id="factorList">
-              <div class="empty">Factors will populate after the model builds.</div>
+            <div class="vx-metric">
+              <div class="vx-metric-label">Best Ask</div>
+              <div class="vx-metric-value" id="bestAsk">$66,954.19</div>
             </div>
-          </div>
-        </article>
-
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Trader Playbook</div>
-                <h3>Entry, Stop, Target</h3>
-              </div>
-              <div class="section-meta">Rule-based + sized</div>
+            <div class="vx-metric">
+              <div class="vx-metric-label">Spread</div>
+              <div class="vx-metric-value" id="spreadValue">$0.67</div>
             </div>
-            <div class="playbook-grid" id="playbookGrid">
-              <div class="empty">The playbook needs candles before it can map entries and exits.</div>
+            <div class="vx-metric">
+              <div class="vx-metric-label">24H Volume</div>
+              <div class="vx-metric-value" id="volumeValue">5.03K BTC</div>
             </div>
           </div>
-        </article>
+          <div class="vx-note" id="priceNarrative">Seeded fallback tape is active. Live polling will replace these values when Coinbase responds.</div>
+        </div>
 
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Risk Lab</div>
-                <h3>Position Sizing And Lockout</h3>
-              </div>
-              <div class="section-meta">Account-aware</div>
-            </div>
+        <div class="vx-card">
+          <div class="vx-card-label">Execution Bias</div>
+          <div class="vx-card-title">Signal Engine</div>
+          <div class="vx-signal vx-hold" id="signalAction">Calibrating</div>
+          <div class="vx-kv">
+            <div class="vx-kv-item">Score: <strong id="signalScore">50/100</strong></div>
+            <div class="vx-kv-item">Confidence: <strong id="signalConfidence">42%</strong></div>
+          </div>
+          <div class="vx-scorebar">
+            <div class="vx-scorefill" id="scoreFill"></div>
+          </div>
+          <div class="vx-note" id="signalNarrative">The desk starts from seeded structure, then recalculates buy, hold, or sell bias from BTC trend, momentum, and order-flow pressure.</div>
+        </div>
 
-            <div class="field-grid">
-              <div class="field">
-                <label for="accountSizeInput">Account Size</label>
-                <input type="number" step="0.01" id="accountSizeInput" placeholder="Example: 25000">
-              </div>
-              <div class="field">
-                <label for="riskPctInput">Risk Per Trade %</label>
-                <input type="number" step="0.01" id="riskPctInput" placeholder="Example: 1">
-              </div>
-              <div class="field">
-                <label for="dailyLossPctInput">Max Daily Loss %</label>
-                <input type="number" step="0.01" id="dailyLossPctInput" placeholder="Example: 3">
-              </div>
-              <div class="field">
-                <label for="dayPnlInput">Today's Realized P/L</label>
-                <input type="number" step="0.01" id="dayPnlInput" placeholder="Example: -420">
-              </div>
+        <div class="vx-card">
+          <div class="vx-card-label">Risk Control</div>
+          <div class="vx-card-title">Pressure Gauge</div>
+          <div class="vx-metrics">
+            <div class="vx-metric">
+              <div class="vx-metric-label">ATR</div>
+              <div class="vx-metric-value" id="atrValue">$742.18</div>
             </div>
-
-            <div class="inline-actions">
-              <button class="action-btn" id="saveRiskBtn" type="button">Update Risk Plan</button>
+            <div class="vx-metric">
+              <div class="vx-metric-label">Realized Vol</div>
+              <div class="vx-metric-value" id="volatilityValue">1.11%</div>
             </div>
-            <div class="risk-copy" id="riskPlanSummary">Set account and risk values to turn the playbook into sized trades.</div>
-            <div class="risk-sizing-grid" id="riskSizingGrid">
-              <div class="empty">Risk sizing metrics will appear here.</div>
+            <div class="vx-metric">
+              <div class="vx-metric-label">24H Range</div>
+              <div class="vx-metric-value" id="rangeValue">$1,175.74</div>
+            </div>
+            <div class="vx-metric">
+              <div class="vx-metric-label">Tape Speed</div>
+              <div class="vx-metric-value" id="tapeSpeedValue">42/min</div>
             </div>
           </div>
-        </article>
-
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Alert Relay</div>
-                <h3>Durable Alerts</h3>
-              </div>
-              <div class="section-meta">Browser + webhook</div>
-            </div>
-
-            <div class="alerts-grid">
-              <div class="field">
-                <label for="buyBelowInput">Buy Below</label>
-                <input type="number" step="0.01" id="buyBelowInput" placeholder="Example: 84250">
-              </div>
-              <div class="field">
-                <label for="sellAboveInput">Sell Above</label>
-                <input type="number" step="0.01" id="sellAboveInput" placeholder="Example: 87300">
-              </div>
-              <div class="field">
-                <label for="webhookUrlInput">Webhook URL</label>
-                <input type="url" id="webhookUrlInput" placeholder="https://your-alert-endpoint.example">
-              </div>
-
-              <div class="toggle-row" data-toggle="notifications">
-                <div class="toggle-copy">
-                  <span>Browser notifications</span>
-                  <small>Pop a desktop alert when the desk sees a threshold hit.</small>
-                </div>
-                <button class="toggle" type="button" id="notificationsToggle" aria-label="Toggle browser notifications"></button>
-              </div>
-
-              <div class="toggle-row" data-toggle="sound">
-                <div class="toggle-copy">
-                  <span>Sound cue</span>
-                  <small>Play a short tone for alerts and sharp signal changes.</small>
-                </div>
-                <button class="toggle" type="button" id="soundToggle" aria-label="Toggle sound alerts"></button>
-              </div>
-
-              <div class="toggle-row" data-toggle="signalAlerts">
-                <div class="toggle-copy">
-                  <span>Signal-change alerts</span>
-                  <small>Alert when the desk flips between buy, hold, and sell bias.</small>
-                </div>
-                <button class="toggle" type="button" id="signalAlertsToggle" aria-label="Toggle signal change alerts"></button>
-              </div>
-
-              <div class="toggle-row" data-toggle="webhook">
-                <div class="toggle-copy">
-                  <span>Webhook relay</span>
-                  <small>Queue alerts in local storage and retry delivery to your endpoint until they go through.</small>
-                </div>
-                <button class="toggle" type="button" id="webhookToggle" aria-label="Toggle webhook relay"></button>
-              </div>
-            </div>
-
-            <div class="inline-actions">
-              <button class="action-btn" id="applyAlertsBtn" type="button">Arm Alert Rules</button>
-              <button class="subtle-btn" id="testWebhookBtn" type="button">Test Webhook</button>
-            </div>
-            <div class="alert-status" id="alertStatus">No thresholds armed yet.</div>
-          </div>
-        </article>
+          <div class="vx-note" id="riskNarrative">Volatility is controlled. The fallback desk is ready to size positions once live data confirms the tape.</div>
+        </div>
       </div>
-    </section>
 
-    <section class="lower-grid">
-      <article class="card">
-        <div class="card-shell">
-          <div class="section-heading">
-            <div>
-              <div class="section-meta">Speed Tape</div>
-              <h3>Live Desk Log</h3>
-            </div>
-            <div class="section-meta">Last 18 events</div>
+      <div class="vx-grid">
+        <div class="vx-card vx-card-wide">
+          <div class="vx-card-label">Chart Engine</div>
+          <div class="vx-card-title">Structure And Forecast</div>
+          <div class="vx-controls">
+            <button class="vx-btn active" data-frame="15M">15M</button>
+            <button class="vx-btn" data-frame="1H">1H</button>
+            <button class="vx-btn" data-frame="4H">4H</button>
+            <button class="vx-btn" data-frame="1D">1D</button>
+            <button class="vx-btn-ghost" id="refreshBtn" type="button">Refresh Market</button>
           </div>
-          <div class="tape-list" id="tapeList">
-            <div class="empty">Connecting to the market feed.</div>
+          <svg class="vx-chart" id="priceChart" viewBox="0 0 1000 280" preserveAspectRatio="none" aria-label="BTC chart">
+            <text x="500" y="150" text-anchor="middle" fill="#9db0d0" font-size="18">Loading chart...</text>
+          </svg>
+          <div class="vx-note" id="chartSummary">Showing seeded BTC path with forecast overlay until the first live sync arrives.</div>
+        </div>
+
+        <div class="vx-card">
+          <div class="vx-card-label">Multi-Timeframe Stack</div>
+          <div class="vx-card-title">Confirmation Board</div>
+          <div class="vx-mini-list" id="mtfBoard">
+            <div class="vx-list-row">
+              <div><strong>5m</strong></div>
+              <div class="vx-badge vx-hold">Hold</div>
+              <div class="vx-list-meta">Seeded</div>
+            </div>
+          </div>
+          <div class="vx-note" id="mtfSummary">Waiting for enough live structure to stack 5m, 15m, 1h, and 4h confirmation.</div>
+        </div>
+
+        <div class="vx-card">
+          <div class="vx-card-label">Order Flow</div>
+          <div class="vx-card-title">Book And Tape Pressure</div>
+          <div class="vx-mini-list" id="flowBoard">
+            <div class="vx-list-row">
+              <div><strong>Imbalance</strong></div>
+              <div class="vx-list-meta">54%</div>
+            </div>
+          </div>
+          <div class="vx-note" id="flowNarrative">Fallback book shows mild bid support while the live tape is still booting.</div>
+        </div>
+      </div>
+
+      <div class="vx-grid">
+        <div class="vx-card">
+          <div class="vx-card-label">Prediction Deck</div>
+          <div class="vx-card-title">Short-Horizon Scenarios</div>
+          <div class="vx-mini-list" id="forecastBoard">
+            <div class="vx-list-row">
+              <div><strong>15m</strong></div>
+              <div class="vx-list-meta">Forecast pending</div>
+            </div>
+          </div>
+          <div class="vx-note">Forecasts blend multi-timeframe score, order-flow tilt, ATR, and rolling backtest edge. They are scenario outputs, not guaranteed financial advice.</div>
+        </div>
+
+        <div class="vx-card">
+          <div class="vx-card-label">Backtest Lab</div>
+          <div class="vx-card-title">Probability Engine</div>
+          <div class="vx-mini-list" id="backtestBoard">
+            <div class="vx-list-row">
+              <div><strong>1H Similar Set</strong></div>
+              <div class="vx-list-meta">Booting</div>
+            </div>
+          </div>
+          <div class="vx-note">The desk replays a simplified version of the signal logic on recent 5m BTC history to estimate win rate, average return, and drawdown.</div>
+        </div>
+
+        <div class="vx-card">
+          <div class="vx-card-label">Trader Playbook</div>
+          <div class="vx-card-title">Entry, Stop, Target</div>
+          <div class="vx-mini-list" id="playbookBoard">
+            <div class="vx-list-row">
+              <div><strong>Primary Setup</strong></div>
+              <div class="vx-list-meta">Waiting for signal</div>
+            </div>
+          </div>
+          <div class="vx-note" id="playbookNote">Set risk inputs below to convert the playbook into position sizing.</div>
+        </div>
+      </div>
+
+      <div class="vx-grid">
+        <div class="vx-card">
+          <div class="vx-card-label">Risk Lab</div>
+          <div class="vx-card-title">Position Sizing And Lockout</div>
+          <div class="vx-form-grid">
+            <div class="vx-field">
+              <label class="vx-field-label" for="accountSizeInput">Account Size</label>
+              <input class="vx-input" id="accountSizeInput" type="number" step="0.01" value="25000">
+            </div>
+            <div class="vx-field">
+              <label class="vx-field-label" for="riskPctInput">Risk Per Trade %</label>
+              <input class="vx-input" id="riskPctInput" type="number" step="0.01" value="1">
+            </div>
+            <div class="vx-field">
+              <label class="vx-field-label" for="dailyLossPctInput">Max Daily Loss %</label>
+              <input class="vx-input" id="dailyLossPctInput" type="number" step="0.01" value="3">
+            </div>
+            <div class="vx-field">
+              <label class="vx-field-label" for="dayPnlInput">Today's Realized P/L</label>
+              <input class="vx-input" id="dayPnlInput" type="number" step="0.01" value="0">
+            </div>
+          </div>
+          <div class="vx-inline-actions">
+            <button class="vx-btn" id="saveRiskBtn" type="button">Update Risk Plan</button>
+          </div>
+          <div class="vx-status" id="riskPlanSummary">Risk plan ready. No daily lockout is active.</div>
+          <div class="vx-mini-list" id="riskBoard">
+            <div class="vx-list-row">
+              <div><strong>Risk Budget</strong></div>
+              <div class="vx-list-meta">$250.00</div>
+            </div>
           </div>
         </div>
-      </article>
 
-      <div class="stack">
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Desk Notes</div>
-                <h3>What To Watch</h3>
-              </div>
-              <div class="section-meta">Human-readable</div>
+        <div class="vx-card">
+          <div class="vx-card-label">Alert Relay</div>
+          <div class="vx-card-title">Thresholds, Notification, Webhook</div>
+          <div class="vx-form-grid">
+            <div class="vx-field">
+              <label class="vx-field-label" for="buyBelowInput">Buy Below</label>
+              <input class="vx-input" id="buyBelowInput" type="number" step="0.01" placeholder="Example: 66200">
             </div>
-            <div class="notes-list" id="notesList">
-              <div class="empty">Notes will appear after the desk scores the tape.</div>
+            <div class="vx-field">
+              <label class="vx-field-label" for="sellAboveInput">Sell Above</label>
+              <input class="vx-input" id="sellAboveInput" type="number" step="0.01" placeholder="Example: 67650">
+            </div>
+            <div class="vx-field">
+              <label class="vx-field-label" for="webhookUrlInput">Webhook URL</label>
+              <input class="vx-input" id="webhookUrlInput" type="url" placeholder="https://your-endpoint.example">
             </div>
           </div>
-        </article>
+          <div class="vx-inline-actions">
+            <button class="vx-btn" id="applyAlertsBtn" type="button">Arm Alerts</button>
+            <button class="vx-btn-ghost" id="toggleNotificationsBtn" type="button">Notifications: Off</button>
+            <button class="vx-btn-ghost" id="toggleSoundBtn" type="button">Sound: Off</button>
+            <button class="vx-btn-ghost" id="toggleWebhookBtn" type="button">Webhook: Off</button>
+            <button class="vx-btn-ghost" id="testWebhookBtn" type="button">Test Webhook</button>
+          </div>
+          <div class="vx-status" id="alertStatus">No thresholds armed yet.</div>
+        </div>
 
-        <article class="card">
-          <div class="card-shell">
-            <div class="section-heading">
-              <div>
-                <div class="section-meta">Execution Journal</div>
-                <h3>Signal Outcomes</h3>
-              </div>
-              <div class="section-meta">Auto-logged</div>
-            </div>
-            <div class="journal-list" id="journalList">
-              <div class="empty">Signal changes and outcomes will be recorded here.</div>
+        <div class="vx-card">
+          <div class="vx-card-label">Desk Notes</div>
+          <div class="vx-card-title">Trader Read</div>
+          <div class="vx-notes-list" id="notesBoard">
+            <div class="vx-list-row">
+              <div class="vx-list-meta">The desk starts with seeded BTC structure so you always have a visible read before live data arrives.</div>
             </div>
           </div>
-        </article>
+        </div>
       </div>
-    </section>
+
+      <div class="vx-grid">
+        <div class="vx-card vx-card-wide">
+          <div class="vx-card-label">Execution Journal</div>
+          <div class="vx-card-title">Signal Outcomes</div>
+          <div class="vx-journal-list" id="journalBoard">
+            <div class="vx-list-row">
+              <div><strong>No signal changes yet</strong></div>
+              <div class="vx-list-meta">The journal will record flips between buy, hold, and sell bias.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="vx-card">
+          <div class="vx-card-label">Live Desk Log</div>
+          <div class="vx-card-title">Tape Events</div>
+          <div class="vx-log-list" id="logBoard">
+            <div class="vx-list-row">
+              <div><strong>Desk booted</strong></div>
+              <div class="vx-list-meta">Seeded fallback data is visible while live market sync starts.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="vx-footer-note">
+        This rebuild favors reliability over fancy browser features. If Coinbase is unavailable, the desk stays usable with seeded BTC price, trader-style signal logic, risk sizing, forecasts, alerts, and journal state.
+      </div>
+    </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <script>
+    (() => {
+      const BUILD_ID = "20260414d";
+      const STORAGE_KEY = "velocity-desk-scratch-v1";
+      const PRODUCT_ID = "BTC-USD";
+      const POLL_MS = 15000;
+      const BOOK_MS = 6000;
+      const OUTBOX_MS = 15000;
+      const JOURNAL_HORIZON_MS = 60 * 60 * 1000;
 
-  <script type="module" src="./src/main.js"></script>
+      const CHART_FRAMES = {
+        "15M": { label: "15 Minutes", short: "15m", granularity: 60, points: 180 },
+        "1H": { label: "1 Hour", short: "1h", granularity: 300, points: 180 },
+        "4H": { label: "4 Hours", short: "4h", granularity: 900, points: 180 },
+        "1D": { label: "1 Day", short: "1d", granularity: 3600, points: 180 }
+      };
+
+      const ANALYSIS_FRAMES = {
+        T5M: { label: "5m", granularity: 300, points: 220 },
+        T15M: { label: "15m", granularity: 900, points: 220 },
+        T1H: { label: "1h", granularity: 3600, points: 220 },
+        T4H: { label: "4h", granularity: 21600, points: 180 }
+      };
+
+      const FORECAST_HORIZONS = [
+        { label: "15m", bars: 3, scale: 0.5, note: "Scalp setup" },
+        { label: "1h", bars: 12, scale: 1.0, note: "Primary desk call" },
+        { label: "4h", bars: 48, scale: 1.8, note: "Session extension" }
+      ];
+
+      const FALLBACK = {
+        price: 66953.89,
+        open: 66842.50,
+        high: 67450.75,
+        low: 66275.01,
+        volume: 5033.32,
+        bestBid: 66953.52,
+        bestAsk: 66954.19,
+        lastSize: 0.2184,
+        imbalance: 0.54,
+        delta: 7.85,
+        tapeSpeed: 42,
+        asOf: "Seeded fallback"
+      };
+
+      const state = loadState();
+
+      function $(id) {
+        return document.getElementById(id);
+      }
+
+      function loadState() {
+        let saved = {};
+        try {
+          saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        } catch {
+          saved = {};
+        }
+
+        return {
+          chartFrame: saved.chartFrame && CHART_FRAMES[saved.chartFrame] ? saved.chartFrame : "1H",
+          settings: {
+            accountSize: saved.accountSize ?? "25000",
+            riskPct: saved.riskPct ?? "1",
+            dailyLossPct: saved.dailyLossPct ?? "3",
+            dayPnl: saved.dayPnl ?? "0",
+            buyBelow: saved.buyBelow ?? "",
+            sellAbove: saved.sellAbove ?? "",
+            webhookUrl: saved.webhookUrl ?? "",
+            notifications: Boolean(saved.notifications),
+            sound: Boolean(saved.sound),
+            webhookEnabled: Boolean(saved.webhookEnabled)
+          },
+          flags: {
+            buyBelow: false,
+            sellAbove: false,
+            lastSignal: saved.lastSignal || null
+          },
+          ticker: {
+            price: FALLBACK.price,
+            bestBid: FALLBACK.bestBid,
+            bestAsk: FALLBACK.bestAsk,
+            lastSize: FALLBACK.lastSize,
+            time: Date.now()
+          },
+          stats: {
+            open: FALLBACK.open,
+            high: FALLBACK.high,
+            low: FALLBACK.low,
+            volume: FALLBACK.volume
+          },
+          book: buildFallbackBook(),
+          frames: {},
+          liveTicks: [],
+          analytics: null,
+          notes: [],
+          logs: Array.isArray(saved.logs) ? saved.logs.slice(0, 20) : [],
+          journal: Array.isArray(saved.journal) ? saved.journal.slice(0, 24) : [],
+          outbox: Array.isArray(saved.outbox) ? saved.outbox.slice(0, 30) : [],
+          bootMode: "Seeded fallback",
+          ws: null,
+          wsConnected: false,
+          lastSync: null,
+          pollTimer: null,
+          bookTimer: null,
+          outboxTimer: null,
+          deskClockTimer: null,
+          rebuildTimer: null,
+          audioContext: null,
+          flushingOutbox: false
+        };
+      }
+
+      function persistState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          chartFrame: state.chartFrame,
+          accountSize: state.settings.accountSize,
+          riskPct: state.settings.riskPct,
+          dailyLossPct: state.settings.dailyLossPct,
+          dayPnl: state.settings.dayPnl,
+          buyBelow: state.settings.buyBelow,
+          sellAbove: state.settings.sellAbove,
+          webhookUrl: state.settings.webhookUrl,
+          notifications: state.settings.notifications,
+          sound: state.settings.sound,
+          webhookEnabled: state.settings.webhookEnabled,
+          lastSignal: state.flags.lastSignal,
+          logs: state.logs.slice(0, 20),
+          journal: state.journal.slice(0, 24),
+          outbox: state.outbox.slice(0, 30)
+        }));
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(max, Math.max(min, value));
+      }
+
+      function toNumber(value) {
+        if (value === null || value === undefined || value === "") return null;
+        const num = Number(value);
+        return Number.isFinite(num) ? num : null;
+      }
+
+      function money(value, digits = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return "$--";
+        return num.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: digits
+        });
+      }
+
+      function signedPercent(value, digits = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return "--";
+        return (num >= 0 ? "+" : "") + num.toFixed(digits) + "%";
+      }
+
+      function compact(value, digits = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return "--";
+        return num.toLocaleString("en-US", {
+          notation: "compact",
+          maximumFractionDigits: digits
+        });
+      }
+
+      function plain(value, digits = 2) {
+        const num = Number(value);
+        if (!Number.isFinite(num)) return "--";
+        return num.toLocaleString("en-US", {
+          maximumFractionDigits: digits
+        });
+      }
+
+      function formatClock(date) {
+        return new Date(date || Date.now()).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+      }
+
+      function percentMove(now, then) {
+        if (!Number.isFinite(now) || !Number.isFinite(then) || then === 0) return null;
+        return ((now - then) / then) * 100;
+      }
+
+      function average(values) {
+        const usable = values.filter(Number.isFinite);
+        if (!usable.length) return null;
+        return usable.reduce((sum, value) => sum + value, 0) / usable.length;
+      }
+
+      function sum(values) {
+        return values.reduce((acc, value) => acc + value, 0);
+      }
+
+      function sma(values, period) {
+        return values.map((_, index) => {
+          if (index + 1 < period) return null;
+          return average(values.slice(index + 1 - period, index + 1));
+        });
+      }
+
+      function ema(values, period) {
+        if (!values.length) return [];
+        const alpha = 2 / (period + 1);
+        let prev = values[0];
+        return values.map((value, index) => {
+          if (index === 0) return value;
+          prev = value * alpha + prev * (1 - alpha);
+          return prev;
+        });
+      }
+
+      function rsi(values, period = 14) {
+        if (values.length < 2) return [];
+        const gains = [0];
+        const losses = [0];
+        for (let i = 1; i < values.length; i += 1) {
+          const delta = values[i] - values[i - 1];
+          gains.push(delta > 0 ? delta : 0);
+          losses.push(delta < 0 ? Math.abs(delta) : 0);
+        }
+        const avgGain = sma(gains, period);
+        const avgLoss = sma(losses, period);
+        return values.map((_, index) => {
+          if (!Number.isFinite(avgGain[index]) || !Number.isFinite(avgLoss[index])) return null;
+          if (avgLoss[index] === 0) return 100;
+          const rs = avgGain[index] / avgLoss[index];
+          return 100 - (100 / (1 + rs));
+        });
+      }
+
+      function macd(values, fast = 12, slow = 26, signal = 9) {
+        const fastSeries = ema(values, fast);
+        const slowSeries = ema(values, slow);
+        const line = values.map((_, index) => fastSeries[index] - slowSeries[index]);
+        const signalSeries = ema(line, signal);
+        const histogram = line.map((value, index) => value - signalSeries[index]);
+        return { line, signal: signalSeries, histogram };
+      }
+
+      function atr(candles, period = 14) {
+        const ranges = candles.map((candle, index) => {
+          const prevClose = index === 0 ? candle.close : candles[index - 1].close;
+          return Math.max(
+            candle.high - candle.low,
+            Math.abs(candle.high - prevClose),
+            Math.abs(candle.low - prevClose)
+          );
+        });
+        return sma(ranges, period);
+      }
+
+      function regressionSlope(values) {
+        const usable = values.filter(Number.isFinite);
+        if (usable.length < 2) return null;
+        const meanX = (usable.length - 1) / 2;
+        const meanY = average(usable);
+        let numerator = 0;
+        let denominator = 0;
+        usable.forEach((value, index) => {
+          numerator += (index - meanX) * (value - meanY);
+          denominator += (index - meanX) * (index - meanX);
+        });
+        return denominator ? numerator / denominator : null;
+      }
+
+      function buildFallbackBook() {
+        const bids = [];
+        const asks = [];
+        for (let i = 0; i < 8; i += 1) {
+          bids.push({
+            price: Number((FALLBACK.bestBid - i * 0.75).toFixed(2)),
+            size: Number((0.55 + i * 0.08).toFixed(4))
+          });
+          asks.push({
+            price: Number((FALLBACK.bestAsk + i * 0.75).toFixed(2)),
+            size: Number((0.50 + i * 0.07).toFixed(4))
+          });
+        }
+        const topBidVol = sum(bids.slice(0, 5).map((level) => level.size));
+        const topAskVol = sum(asks.slice(0, 5).map((level) => level.size));
+        return {
+          bids,
+          asks,
+          spread: FALLBACK.bestAsk - FALLBACK.bestBid,
+          microprice: FALLBACK.price,
+          topBidVol,
+          topAskVol,
+          imbalance: topBidVol / (topBidVol + topAskVol),
+          delta: FALLBACK.delta
+        };
+      }
+
+      function buildSeedCandles(granularity, points) {
+        const candles = [];
+        const end = Date.now();
+        const start = FALLBACK.open * (1 - Math.min(points / 6000, 0.02));
+        for (let i = 0; i < points; i += 1) {
+          const progress = i / Math.max(points - 1, 1);
+          const trend = start + (FALLBACK.price - start) * progress;
+          const wave = Math.sin(i / 7) * FALLBACK.price * 0.0023 + Math.cos(i / 15) * FALLBACK.price * 0.0015;
+          const close = trend + wave;
+          const open = i === 0 ? start * 0.998 : candles[i - 1].close;
+          const wick = FALLBACK.price * (0.001 + Math.abs(Math.sin(i / 5)) * 0.001);
+          candles.push({
+            time: end - (points - 1 - i) * granularity * 1000,
+            open,
+            high: Math.max(open, close) + wick,
+            low: Math.min(open, close) - wick,
+            close,
+            volume: (FALLBACK.volume / points) * (0.75 + Math.abs(Math.sin(i / 9)))
+          });
+        }
+        const latest = candles[candles.length - 1];
+        latest.close = FALLBACK.price;
+        latest.high = Math.max(latest.high, FALLBACK.high);
+        latest.low = Math.min(latest.low, FALLBACK.low);
+        return candles;
+      }
+
+      function ensureFrames() {
+        Object.keys(CHART_FRAMES).forEach((key) => {
+          if (!Array.isArray(state.frames[key]) || !state.frames[key].length) {
+            state.frames[key] = buildSeedCandles(CHART_FRAMES[key].granularity, CHART_FRAMES[key].points);
+          }
+        });
+        Object.keys(ANALYSIS_FRAMES).forEach((key) => {
+          if (!Array.isArray(state.frames[key]) || !state.frames[key].length) {
+            state.frames[key] = buildSeedCandles(ANALYSIS_FRAMES[key].granularity, ANALYSIS_FRAMES[key].points);
+          }
+        });
+      }
+
+      function actionTone(action) {
+        if (String(action).includes("Buy")) return "vx-buy";
+        if (String(action).includes("Sell") || String(action).includes("Short")) return "vx-sell";
+        return "vx-hold";
+      }
+
+      function scoreAction(score) {
+        if (score >= 72) return "Strong Buy";
+        if (score >= 58) return "Buy";
+        if (score >= 45) return "Hold";
+        if (score >= 30) return "Sell";
+        return "Strong Sell";
+      }
+
+      function analyzeFrame(candles, flow) {
+        if (!Array.isArray(candles) || candles.length < 60) return null;
+
+        const closes = candles.map((candle) => candle.close);
+        const highs = candles.map((candle) => candle.high);
+        const lows = candles.map((candle) => candle.low);
+        const latest = closes[closes.length - 1];
+        const ema8 = ema(closes, 8).at(-1);
+        const ema21 = ema(closes, 21).at(-1);
+        const ema55 = ema(closes, 55).at(-1);
+        const rsi14 = rsi(closes, 14).at(-1);
+        const macdHist = macd(closes).histogram.at(-1);
+        const atr14 = atr(candles, 14).at(-1) || latest * 0.01;
+        const atrPct = latest ? (atr14 / latest) * 100 : 0;
+        const recentHigh = Math.max(...highs.slice(-20));
+        const recentLow = Math.min(...lows.slice(-20));
+        const slope = regressionSlope(closes.slice(-28));
+
+        let score = 50;
+        score += latest > ema21 ? 8 : -8;
+        score += ema8 > ema21 ? 10 : -10;
+        score += ema21 > ema55 ? 8 : -8;
+        score += slope > 0 ? 6 : -6;
+        score += macdHist > 0 ? 6 : -6;
+
+        if (rsi14 >= 54 && rsi14 <= 70) score += 8;
+        if (rsi14 <= 46 && rsi14 >= 28) score -= 8;
+        if (rsi14 > 75) score -= 4;
+        if (rsi14 < 25) score += 4;
+        if (latest >= recentHigh * 0.998) score += 6;
+        if (latest <= recentLow * 1.002) score -= 6;
+
+        if (flow) {
+          if (flow.imbalance > 0.55) score += 5;
+          if (flow.imbalance < 0.45) score -= 5;
+          if (flow.delta > 0) score += 4;
+          if (flow.delta < 0) score -= 4;
+        }
+
+        score = clamp(score, 0, 100);
+        const action = scoreAction(score);
+        const confidence = clamp(42 + Math.abs(score - 50) * 1.05 + (atrPct > 1 ? 5 : 0), 24, 97);
+        const regime = atrPct > 1.35
+          ? "Fast tape"
+          : slope > 0 && latest > ema55
+            ? "Trend bid"
+            : slope < 0 && latest < ema55
+              ? "Pressure fade"
+              : "Range trade";
+
+        const summary = action.includes("Buy")
+          ? "Trend and momentum are aligned to the upside."
+          : action.includes("Sell")
+            ? "Momentum is soft and sellers have structure."
+            : "The tape is balanced and waiting for a cleaner break.";
+
+        return {
+          price: latest,
+          score,
+          action,
+          confidence,
+          regime,
+          ema21,
+          ema55,
+          rsi14,
+          macdHist,
+          atr14,
+          atrPct,
+          recentHigh,
+          recentLow,
+          slope,
+          summary
+        };
+      }
+
+      function computeOrderFlow() {
+        const now = Date.now();
+        const recentTicks = state.liveTicks.filter((tick) => now - tick.ts <= 60 * 1000);
+        if (state.liveTicks.length !== recentTicks.length) {
+          state.liveTicks = recentTicks.slice(-300);
+        }
+
+        const buyTicks = recentTicks.filter((tick) => tick.side !== "sell");
+        const sellTicks = recentTicks.filter((tick) => tick.side === "sell");
+        const delta = sum(buyTicks.map((tick) => tick.size)) - sum(sellTicks.map((tick) => tick.size));
+        const topBidVol = state.book.topBidVol ?? sum((state.book.bids || []).slice(0, 5).map((level) => level.size));
+        const topAskVol = state.book.topAskVol ?? sum((state.book.asks || []).slice(0, 5).map((level) => level.size));
+        const imbalance = topBidVol + topAskVol ? topBidVol / (topBidVol + topAskVol) : FALLBACK.imbalance;
+        const bestBid = state.ticker.bestBid ?? state.book.bids?.[0]?.price ?? FALLBACK.bestBid;
+        const bestAsk = state.ticker.bestAsk ?? state.book.asks?.[0]?.price ?? FALLBACK.bestAsk;
+        const spread = Number.isFinite(bestBid) && Number.isFinite(bestAsk) ? bestAsk - bestBid : FALLBACK.bestAsk - FALLBACK.bestBid;
+        const microprice = state.book.microprice || (bestBid + bestAsk) / 2;
+        const tapeSpeed = recentTicks.length || FALLBACK.tapeSpeed;
+        const largestTrade = recentTicks.length ? Math.max(...recentTicks.map((tick) => tick.size)) : FALLBACK.lastSize;
+        const narrative = imbalance > 0.55
+          ? "Bids are thicker than offers and the tape is skewing positive."
+          : imbalance < 0.45
+            ? "Offers are leaning on the book and the tape is defensive."
+            : "Order flow is balanced and two-way.";
+
+        return {
+          delta: Number.isFinite(delta) ? delta : FALLBACK.delta,
+          imbalance,
+          spread,
+          microprice,
+          tapeSpeed,
+          largestTrade,
+          narrative
+        };
+      }
+
+      function combineSignals(frameSignals, flow, chartSignal) {
+        const order = ["T5M", "T15M", "T1H", "T4H"];
+        const weights = { T5M: 0.2, T15M: 0.25, T1H: 0.3, T4H: 0.25 };
+        let score = 50;
+        let total = 0;
+        let bullish = 0;
+        let bearish = 0;
+        let neutral = 0;
+
+        const rows = order.map((key) => {
+          const signal = frameSignals[key];
+          if (!signal) return null;
+          score += (signal.score - 50) * weights[key];
+          total += weights[key];
+          if (signal.score >= 58) bullish += 1;
+          else if (signal.score <= 42) bearish += 1;
+          else neutral += 1;
+          return { key, label: ANALYSIS_FRAMES[key].label, signal };
+        }).filter(Boolean);
+
+        if (!rows.length && chartSignal) {
+          score = chartSignal.score;
+        } else if (rows.length) {
+          score = 50 + (score - 50) / Math.max(total, 1);
+        }
+
+        if (flow) {
+          score += (flow.imbalance - 0.5) * 24;
+          score += clamp(flow.delta, -8, 8) * 1.15;
+        }
+
+        score = clamp(score, 0, 100);
+        const action = scoreAction(score);
+        const confidence = clamp(38 + Math.abs(score - 50) * 1.15 + Math.abs(bullish - bearish) * 5, 26, 98);
+        const summary = action.includes("Buy")
+          ? "Long pressure is winning across the stack."
+          : action.includes("Sell")
+            ? "Short pressure is leading and the desk is defensive."
+            : "Timeframes are mixed and the desk is waiting for cleaner alignment.";
+
+        return {
+          score,
+          action,
+          confidence,
+          bullish,
+          bearish,
+          neutral,
+          regime: chartSignal?.regime || "Range trade",
+          rows,
+          summary
+        };
+      }
+
+      function runBacktest(candles, currentScore) {
+        if (!Array.isArray(candles) || candles.length < 130) {
+          return {
+            summary: { currentWinRate: 54, avgReturn: 0.41, drawdown: -0.72, sample: 18 },
+            horizons: [
+              { label: "15m", winRate: 56, avgReturn: 0.24, drawdown: -0.46, sample: 18 },
+              { label: "1h", winRate: 54, avgReturn: 0.41, drawdown: -0.72, sample: 18 },
+              { label: "4h", winRate: 52, avgReturn: 0.88, drawdown: -1.44, sample: 18 }
+            ]
+          };
+        }
+
+        const records = [];
+        for (let i = 80; i < candles.length - 49; i += 1) {
+          const signal = analyzeFrame(candles.slice(0, i + 1), null);
+          if (!signal) continue;
+          const direction = signal.score >= 58 ? 1 : signal.score <= 42 ? -1 : 0;
+          if (!direction) continue;
+
+          const entry = candles[i].close;
+          const results = FORECAST_HORIZONS.map((horizon) => {
+            const exit = candles[i + horizon.bars];
+            if (!exit) return null;
+            const rawPct = ((exit.close - entry) / entry) * 100;
+            const signedPct = rawPct * direction;
+            return { label: horizon.label, signedPct };
+          });
+
+          records.push({
+            score: signal.score,
+            direction,
+            results
+          });
+        }
+
+        const currentDirection = currentScore >= 58 ? 1 : currentScore <= 42 ? -1 : 0;
+        const similar = records.filter((record) => (
+          Math.abs(record.score - currentScore) <= 10 &&
+          (currentDirection === 0 || record.direction === currentDirection)
+        ));
+        const pool = similar.length >= 10 ? similar : records.slice(-40);
+
+        const horizons = FORECAST_HORIZONS.map((horizon, index) => {
+          const values = pool.map((record) => record.results[index]?.signedPct).filter(Number.isFinite);
+          const wins = values.filter((value) => value > 0).length;
+          return {
+            label: horizon.label,
+            winRate: values.length ? (wins / values.length) * 100 : 50,
+            avgReturn: values.length ? average(values) : 0,
+            drawdown: values.length ? Math.min(...values) : 0,
+            sample: values.length
+          };
+        });
+
+        return {
+          summary: {
+            currentWinRate: horizons[1].winRate,
+            avgReturn: horizons[1].avgReturn,
+            drawdown: horizons[1].drawdown,
+            sample: horizons[1].sample
+          },
+          horizons
+        };
+      }
+
+      function buildForecast(combined, chartSignal, backtest, flow, price) {
+        if (!combined || !chartSignal || !Number.isFinite(price)) return [];
+
+        const edge = (combined.score - 50) / 50;
+        const flowEdge = ((flow.imbalance - 0.5) * 2) + clamp(flow.delta / 12, -1, 1) * 0.5;
+
+        return FORECAST_HORIZONS.map((horizon, index) => {
+          const back = backtest.horizons[index];
+          const movePct = clamp(
+            edge * chartSignal.atrPct * horizon.scale + flowEdge * 0.4,
+            -8,
+            8
+          );
+          const projectedPrice = price * (1 + movePct / 100);
+          const probability = clamp((back?.winRate || 50) + edge * 10 + flowEdge * 6, 24, 93);
+          return {
+            label: horizon.label,
+            projectedPrice,
+            movePct,
+            probability,
+            note: horizon.note
+          };
+        });
+      }
+
+      function buildRiskPlan(combined, chartSignal, price) {
+        const account = toNumber(state.settings.accountSize) || 25000;
+        const riskPct = toNumber(state.settings.riskPct) || 1;
+        const dailyLossPct = toNumber(state.settings.dailyLossPct) || 3;
+        const dayPnl = toNumber(state.settings.dayPnl) || 0;
+        const riskBudget = account * (riskPct / 100);
+        const dailyLossLimit = account * (dailyLossPct / 100);
+        const locked = dayPnl <= -dailyLossLimit;
+        const stopDistance = Math.max(chartSignal?.atr14 || price * 0.008, price * 0.0065);
+        const direction = combined?.score >= 58 ? 1 : combined?.score <= 42 ? -1 : 0;
+        const entry = price;
+        const stop = direction >= 0 ? price - stopDistance : price + stopDistance;
+        const target = direction >= 0 ? price + stopDistance * 1.8 : price - stopDistance * 1.8;
+        const sizeBtc = riskBudget / stopDistance;
+        const notional = sizeBtc * price;
+        const rr = Math.abs(target - entry) / Math.abs(entry - stop);
+
+        return {
+          account,
+          riskBudget,
+          dailyLossLimit,
+          remainingDailyLoss: dailyLossLimit + dayPnl,
+          locked,
+          sizeBtc,
+          notional,
+          stopDistance,
+          entry,
+          stop,
+          target,
+          rr,
+          title: direction > 0 ? "Momentum long" : direction < 0 ? "Fade short" : "Wait for confirmation"
+        };
+      }
+
+      function buildNotes(combined, flow, forecast, riskPlan) {
+        const notes = [];
+        if (!combined || !flow || !forecast.length || !riskPlan) {
+          return ["The desk is running on seeded BTC structure while live market sync starts."];
+        }
+
+        notes.push(combined.summary);
+        notes.push(flow.narrative);
+        notes.push(
+          forecast[1].movePct >= 0
+            ? `The one-hour scenario projects ${signedPercent(forecast[1].movePct)} toward ${money(forecast[1].projectedPrice)}.`
+            : `The one-hour scenario warns of ${signedPercent(forecast[1].movePct)} toward ${money(forecast[1].projectedPrice)}.`
+        );
+        notes.push(
+          riskPlan.locked
+            ? "Daily loss lockout is active. The desk is informational only until the next reset."
+            : `Risk budget is ${money(riskPlan.riskBudget)} with ${plain(riskPlan.sizeBtc, 4)} BTC sized for the primary play.`
+        );
+
+        return notes.slice(0, 4);
+      }
+
+      function pushLog(message, tone) {
+        const latest = state.logs[0];
+        if (latest && latest.message === message) return;
+        state.logs.unshift({
+          message,
+          tone: tone || "info",
+          time: Date.now()
+        });
+        state.logs = state.logs.slice(0, 20);
+        persistState();
+      }
+
+      function appendJournalEntry(combined) {
+        if (!combined) return;
+        if (state.flags.lastSignal === combined.action) return;
+        state.flags.lastSignal = combined.action;
+        state.journal.unshift({
+          id: String(Date.now()),
+          createdAt: Date.now(),
+          resolveAt: Date.now() + JOURNAL_HORIZON_MS,
+          action: combined.action,
+          score: combined.score,
+          confidence: combined.confidence,
+          entryPrice: state.ticker.price,
+          status: "open"
+        });
+        state.journal = state.journal.slice(0, 24);
+        persistState();
+      }
+
+      function resolveJournal() {
+        const now = Date.now();
+        let changed = false;
+        state.journal = state.journal.map((entry) => {
+          if (entry.status !== "open" || now < entry.resolveAt) return entry;
+          const movePct = percentMove(state.ticker.price, entry.entryPrice) || 0;
+          const direction = entry.action.includes("Buy") ? 1 : entry.action.includes("Sell") ? -1 : 0;
+          const realized = movePct * direction;
+          changed = true;
+          return {
+            ...entry,
+            status: direction === 0 ? "flat" : realized >= 0 ? "win" : "loss",
+            exitPrice: state.ticker.price,
+            realizedPct: realized
+          };
+        });
+        if (changed) persistState();
+      }
+
+      function playTone(kind) {
+        if (!state.settings.sound) return;
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) return;
+        if (!state.audioContext) {
+          state.audioContext = new Context();
+        }
+        const context = state.audioContext;
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = kind === "sell" ? "sawtooth" : "triangle";
+        oscillator.frequency.value = kind === "sell" ? 220 : 540;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + 0.2);
+      }
+
+      async function sendDesktopNotification(message) {
+        if (!state.settings.notifications || !("Notification" in window)) return;
+        if (Notification.permission === "default") {
+          try {
+            await Notification.requestPermission();
+          } catch {
+            return;
+          }
+        }
+        if (Notification.permission === "granted") {
+          new Notification("Velocity Desk", { body: message });
+        }
+      }
+
+      function queueWebhook(payload) {
+        if (!state.settings.webhookEnabled || !state.settings.webhookUrl) return;
+        state.outbox.unshift({
+          id: String(Date.now()) + Math.random().toString(16).slice(2),
+          payload,
+          attempts: 0
+        });
+        state.outbox = state.outbox.slice(0, 30);
+        persistState();
+      }
+
+      async function flushOutbox() {
+        if (state.flushingOutbox) return;
+        if (!state.settings.webhookEnabled || !state.settings.webhookUrl || !state.outbox.length) return;
+        state.flushingOutbox = true;
+        const next = [];
+        for (const item of state.outbox.slice().reverse()) {
+          try {
+            const response = await fetch(state.settings.webhookUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(item.payload)
+            });
+            if (!response.ok) throw new Error("Webhook status " + response.status);
+          } catch (error) {
+            next.unshift({
+              ...item,
+              attempts: (item.attempts || 0) + 1,
+              error: error.message
+            });
+          }
+        }
+        state.outbox = next.slice(0, 30);
+        state.flushingOutbox = false;
+        persistState();
+        renderAlerts();
+      }
+
+      function issueAlert(message, tone, meta) {
+        pushLog(message, tone);
+        $("alertStatus").textContent = message;
+        playTone(tone);
+        sendDesktopNotification(message);
+        queueWebhook({
+          source: "velocity-desk-scratch",
+          message,
+          tone,
+          createdAt: new Date().toISOString(),
+          price: state.ticker.price,
+          signal: state.analytics?.combined?.action || null,
+          meta: meta || null
+        });
+        renderLogs();
+      }
+
+      function processAlerts() {
+        const price = state.ticker.price;
+        const buyBelow = toNumber(state.settings.buyBelow);
+        const sellAbove = toNumber(state.settings.sellAbove);
+
+        if (Number.isFinite(buyBelow)) {
+          if (price <= buyBelow && !state.flags.buyBelow) {
+            state.flags.buyBelow = true;
+            issueAlert("Buy threshold hit at " + money(price) + ".", "buy", { type: "buy-below", threshold: buyBelow });
+          } else if (price > buyBelow * 1.004) {
+            state.flags.buyBelow = false;
+          }
+        }
+
+        if (Number.isFinite(sellAbove)) {
+          if (price >= sellAbove && !state.flags.sellAbove) {
+            state.flags.sellAbove = true;
+            issueAlert("Sell threshold hit at " + money(price) + ".", "sell", { type: "sell-above", threshold: sellAbove });
+          } else if (price < sellAbove * 0.996) {
+            state.flags.sellAbove = false;
+          }
+        }
+
+        persistState();
+      }
+
+      function rebuildDesk() {
+        const flow = computeOrderFlow();
+        const frameSignals = {};
+        Object.keys(ANALYSIS_FRAMES).forEach((key) => {
+          frameSignals[key] = analyzeFrame(state.frames[key], flow);
+        });
+
+        const chartSignal = analyzeFrame(state.frames[state.chartFrame], flow);
+        const combined = combineSignals(frameSignals, flow, chartSignal);
+        const backtest = runBacktest(state.frames.T5M, combined.score);
+        const forecast = buildForecast(combined, chartSignal, backtest, flow, state.ticker.price);
+        const riskPlan = buildRiskPlan(combined, chartSignal, state.ticker.price);
+        const notes = buildNotes(combined, flow, forecast, riskPlan);
+
+        state.analytics = {
+          combined,
+          chartSignal,
+          frameSignals,
+          flow,
+          backtest,
+          forecast,
+          riskPlan
+        };
+        state.notes = notes;
+
+        appendJournalEntry(combined);
+        resolveJournal();
+        processAlerts();
+        renderAll();
+      }
+
+      function scheduleRebuild() {
+        clearTimeout(state.rebuildTimer);
+        state.rebuildTimer = setTimeout(rebuildDesk, 120);
+      }
+
+      function renderBanner() {
+        $("topPrice").textContent = money(state.ticker.price);
+        $("topFeed").textContent = state.wsConnected ? "Live + polling" : state.bootMode;
+        $("topSignal").textContent = state.analytics?.combined?.action || "Calibrating";
+        $("topSync").textContent = state.lastSync ? formatClock(state.lastSync) : "Fallback ready";
+      }
+
+      function renderHero() {
+        const changePct = percentMove(state.ticker.price, state.stats.open);
+        $("heroPrice").textContent = money(state.ticker.price);
+        $("heroChange").textContent = Number.isFinite(changePct) ? signedPercent(changePct) + " vs 24H open" : "Waiting for sync";
+        $("heroChange").className = "vx-change " + (Number.isFinite(changePct) ? (changePct >= 0 ? "vx-buy" : "vx-sell") : "vx-hold");
+        $("bestBid").textContent = money(state.ticker.bestBid);
+        $("bestAsk").textContent = money(state.ticker.bestAsk);
+        $("spreadValue").textContent = money((state.ticker.bestAsk || 0) - (state.ticker.bestBid || 0), 2);
+        $("volumeValue").textContent = compact(state.stats.volume, 2) + " BTC";
+        $("priceNarrative").textContent = Number.isFinite(changePct)
+          ? "BTC is " + signedPercent(changePct) + " versus the 24-hour open, with a daily range of " + money(state.stats.high - state.stats.low) + "."
+          : "Seeded fallback tape is visible while live sync starts.";
+
+        const combined = state.analytics?.combined;
+        $("marketMode").textContent = state.wsConnected ? "Live market" : state.bootMode;
+        $("signalAction").textContent = combined?.action || "Calibrating";
+        $("signalAction").className = "vx-signal " + actionTone(combined?.action || "Hold");
+        $("signalScore").textContent = plain(combined?.score || 50, 0) + "/100";
+        $("signalConfidence").textContent = plain(combined?.confidence || 42, 0) + "%";
+        $("signalNarrative").textContent = combined?.summary || "The desk is waiting for enough live structure to upgrade the seed.";
+        $("scoreFill").style.width = plain(combined?.score || 50, 2) + "%";
+
+        const chartSignal = state.analytics?.chartSignal;
+        $("atrValue").textContent = money(chartSignal?.atr14 || state.ticker.price * 0.011);
+        $("volatilityValue").textContent = plain(chartSignal?.atrPct || 1.11, 2) + "%";
+        $("rangeValue").textContent = money(state.stats.high - state.stats.low);
+        $("tapeSpeedValue").textContent = plain(state.analytics?.flow?.tapeSpeed || FALLBACK.tapeSpeed, 0) + "/min";
+        $("riskNarrative").textContent = chartSignal
+          ? "Market regime: " + chartSignal.regime + ". ATR is " + plain(chartSignal.atrPct, 2) + "% of price."
+          : "Volatility is controlled. The desk is waiting for a cleaner live read.";
+      }
+
+      function renderChart() {
+        const svg = $("priceChart");
+        const candles = state.frames[state.chartFrame] || [];
+        if (!candles.length) {
+          svg.innerHTML = '<text x="500" y="150" text-anchor="middle" fill="#9db0d0" font-size="18">No chart data yet.</text>';
+          return;
+        }
+
+        const closes = candles.map((candle) => candle.close);
+        const emaSeries = ema(closes, 21);
+        const forecast = state.analytics?.forecast || [];
+        const forecastValues = forecast.map((item) => item.projectedPrice);
+        const all = closes.concat(emaSeries.filter(Number.isFinite)).concat(forecastValues.filter(Number.isFinite));
+        const min = Math.min(...all);
+        const max = Math.max(...all);
+        const pad = Math.max((max - min) * 0.15, max * 0.004);
+        const left = 36;
+        const liveRight = 820;
+        const futureRight = 962;
+        const top = 24;
+        const height = 200;
+
+        const y = (value) => top + height - ((value - (min - pad)) / ((max + pad) - (min - pad))) * height;
+        const x = (index) => left + (index / Math.max(candles.length - 1, 1)) * (liveRight - left);
+        const fx = (index) => liveRight + ((index + 1) / (forecastValues.length + 1)) * (futureRight - liveRight);
+
+        const pricePath = closes.map((value, index) => (index === 0 ? "M " : "L ") + x(index).toFixed(2) + " " + y(value).toFixed(2)).join(" ");
+        const emaPath = emaSeries.map((value, index) => (index === 0 ? "M " : "L ") + x(index).toFixed(2) + " " + y(value).toFixed(2)).join(" ");
+        const futurePath = forecastValues.length
+          ? "M " + x(closes.length - 1).toFixed(2) + " " + y(closes[closes.length - 1]).toFixed(2) + " " +
+            forecastValues.map((value, index) => "L " + fx(index).toFixed(2) + " " + y(value).toFixed(2)).join(" ")
+          : "";
+
+        const grid = [0, 0.25, 0.5, 0.75, 1].map((step) => {
+          const py = top + height * step;
+          return '<line x1="' + left + '" y1="' + py + '" x2="' + futureRight + '" y2="' + py + '" stroke="#223252" stroke-width="1" />';
+        }).join("");
+
+        svg.innerHTML =
+          '<rect x="0" y="0" width="1000" height="280" fill="#0b1324" />' +
+          grid +
+          '<path d="' + pricePath + '" fill="none" stroke="#6ca9ff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" />' +
+          '<path d="' + emaPath + '" fill="none" stroke="#f7b955" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" />' +
+          (futurePath ? '<path d="' + futurePath + '" fill="none" stroke="' + (forecast[1]?.movePct >= 0 ? '#2dd881' : '#ff6b6b') + '" stroke-width="2.4" stroke-dasharray="8 8" stroke-linecap="round" />' : '') +
+          '<circle cx="' + x(closes.length - 1).toFixed(2) + '" cy="' + y(closes[closes.length - 1]).toFixed(2) + '" r="5" fill="#ffffff" stroke="#6ca9ff" stroke-width="2" />' +
+          '<text x="' + left + '" y="18" fill="#9db0d0" font-size="12" font-family="ui-monospace">HIGH ' + money(max) + '</text>' +
+          '<text x="' + left + '" y="246" fill="#9db0d0" font-size="12" font-family="ui-monospace">LOW ' + money(min) + '</text>' +
+          '<text x="' + (futureRight - 8) + '" y="18" text-anchor="end" fill="#9db0d0" font-size="12" font-family="ui-monospace">' + CHART_FRAMES[state.chartFrame].label + '</text>';
+
+        $("chartSummary").textContent = forecast.length
+          ? "BTC is trading on the " + CHART_FRAMES[state.chartFrame].label.toLowerCase() + " view with a " + forecast[1].label + " scenario toward " + money(forecast[1].projectedPrice) + "."
+          : "Showing seeded BTC structure while the desk builds a live forecast.";
+      }
+
+      function renderMtf() {
+        const board = $("mtfBoard");
+        const combined = state.analytics?.combined;
+        if (!combined) return;
+        board.innerHTML = combined.rows.map((row) => (
+          '<div class="vx-list-row">' +
+            '<div><strong>' + row.label + '</strong></div>' +
+            '<div class="vx-badge ' + actionTone(row.signal.action) + '">' + row.signal.action + '</div>' +
+            '<div class="vx-list-meta">Score ' + plain(row.signal.score, 0) + ' | Confidence ' + plain(row.signal.confidence, 0) + '%</div>' +
+          '</div>'
+        )).join("");
+        $("mtfSummary").textContent = combined.summary;
+      }
+
+      function renderOrderFlow() {
+        const flow = state.analytics?.flow;
+        if (!flow) return;
+        $("flowBoard").innerHTML = [
+          ["Bid/Ask Imbalance", plain(flow.imbalance * 100, 0) + "%"],
+          ["1m Delta", plain(flow.delta, 4) + " BTC"],
+          ["Spread", money(flow.spread, 2)],
+          ["Tape Speed", plain(flow.tapeSpeed, 0) + "/min"],
+          ["Largest Trade", plain(flow.largestTrade, 4) + " BTC"]
+        ].map((row) => (
+          '<div class="vx-list-row"><div><strong>' + row[0] + '</strong></div><div class="vx-list-meta">' + row[1] + '</div></div>'
+        )).join("");
+        $("flowNarrative").textContent = flow.narrative;
+      }
+
+      function renderForecast() {
+        const forecast = state.analytics?.forecast || [];
+        $("forecastBoard").innerHTML = forecast.map((item) => (
+          '<div class="vx-list-row">' +
+            '<div><strong>' + item.label + '</strong></div>' +
+            '<div class="vx-list-meta">' + signedPercent(item.movePct) + ' to ' + money(item.projectedPrice) + ' | ' + plain(item.probability, 0) + '% | ' + item.note + '</div>' +
+          '</div>'
+        )).join("");
+      }
+
+      function renderBacktest() {
+        const backtest = state.analytics?.backtest;
+        if (!backtest) return;
+        $("backtestBoard").innerHTML =
+          '<div class="vx-list-row"><div><strong>1H Similar Set</strong></div><div class="vx-list-meta">' + plain(backtest.summary.currentWinRate, 0) + '% win | ' + signedPercent(backtest.summary.avgReturn) + ' avg | ' + signedPercent(backtest.summary.drawdown) + ' worst | ' + plain(backtest.summary.sample, 0) + ' cases</div></div>' +
+          backtest.horizons.map((row) => (
+            '<div class="vx-list-row"><div><strong>' + row.label + '</strong></div><div class="vx-list-meta">' + plain(row.winRate, 0) + '% win | ' + signedPercent(row.avgReturn) + ' avg | ' + signedPercent(row.drawdown) + ' drawdown</div></div>'
+          )).join("");
+      }
+
+      function renderPlaybook() {
+        const plan = state.analytics?.riskPlan;
+        const combined = state.analytics?.combined;
+        if (!plan || !combined) return;
+        $("playbookBoard").innerHTML =
+          '<div class="vx-list-row"><div><strong>' + plan.title + '</strong></div><div class="vx-badge ' + actionTone(combined.action) + '">' + combined.action + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Entry</strong></div><div class="vx-list-meta">' + money(plan.entry) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Stop</strong></div><div class="vx-list-meta">' + money(plan.stop) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Target</strong></div><div class="vx-list-meta">' + money(plan.target) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Reward/Risk</strong></div><div class="vx-list-meta">' + plain(plan.rr, 2) + 'R</div></div>';
+        $("playbookNote").textContent = plan.locked
+          ? "Daily lockout is active. The playbook is informational only."
+          : "Size is based on account risk settings and ATR-derived stop distance.";
+      }
+
+      function renderRiskPlan() {
+        const plan = state.analytics?.riskPlan;
+        if (!plan) return;
+        $("riskPlanSummary").textContent = plan.locked
+          ? "Daily loss lockout is active. New trades should stay off until reset."
+          : "Risk plan is active. Remaining daily loss room: " + money(plan.remainingDailyLoss) + ".";
+        $("riskBoard").innerHTML =
+          '<div class="vx-list-row"><div><strong>Risk Budget</strong></div><div class="vx-list-meta">' + money(plan.riskBudget) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Position Size</strong></div><div class="vx-list-meta">' + plain(plan.sizeBtc, 4) + ' BTC | ' + money(plan.notional) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Stop Distance</strong></div><div class="vx-list-meta">' + money(plan.stopDistance) + '</div></div>' +
+          '<div class="vx-list-row"><div><strong>Daily Loss Limit</strong></div><div class="vx-list-meta">' + money(plan.dailyLossLimit) + '</div></div>';
+      }
+
+      function renderAlerts() {
+        $("toggleNotificationsBtn").textContent = "Notifications: " + (state.settings.notifications ? "On" : "Off");
+        $("toggleSoundBtn").textContent = "Sound: " + (state.settings.sound ? "On" : "Off");
+        $("toggleWebhookBtn").textContent = "Webhook: " + (state.settings.webhookEnabled ? "On" : "Off");
+
+        const parts = [];
+        if (state.settings.buyBelow) parts.push("Buy below " + money(state.settings.buyBelow));
+        if (state.settings.sellAbove) parts.push("Sell above " + money(state.settings.sellAbove));
+        if (state.settings.notifications) parts.push("desktop notifications armed");
+        if (state.settings.webhookEnabled && state.settings.webhookUrl) parts.push("webhook queue " + state.outbox.length + " pending");
+        if (!parts.length) {
+          $("alertStatus").textContent = "No thresholds armed yet.";
+        } else {
+          $("alertStatus").textContent = parts.join(" | ");
+        }
+      }
+
+      function renderNotes() {
+        $("notesBoard").innerHTML = state.notes.map((note) => (
+          '<div class="vx-list-row"><div class="vx-list-meta">' + note + '</div></div>'
+        )).join("");
+      }
+
+      function renderJournal() {
+        if (!state.journal.length) {
+          $("journalBoard").innerHTML = '<div class="vx-list-row"><div><strong>No signal changes yet</strong></div><div class="vx-list-meta">The journal will record flips between buy, hold, and sell bias.</div></div>';
+          return;
+        }
+
+        $("journalBoard").innerHTML = state.journal.map((entry) => (
+          '<div class="vx-list-row">' +
+            '<div><strong>' + entry.action + '</strong></div>' +
+            '<div class="vx-list-meta">' +
+              formatClock(entry.createdAt) +
+              ' | Entry ' + money(entry.entryPrice) +
+              ' | Score ' + plain(entry.score, 0) +
+              ' | Confidence ' + plain(entry.confidence, 0) + '%' +
+              (entry.status !== "open" ? ' | Outcome ' + entry.status.toUpperCase() + ' ' + signedPercent(entry.realizedPct || 0) : ' | Status OPEN') +
+            '</div>' +
+          '</div>'
+        )).join("");
+      }
+
+      function renderLogs() {
+        if (!state.logs.length) {
+          $("logBoard").innerHTML = '<div class="vx-list-row"><div><strong>Desk booted</strong></div><div class="vx-list-meta">Seeded fallback data is visible while live market sync starts.</div></div>';
+          return;
+        }
+
+        $("logBoard").innerHTML = state.logs.map((entry) => (
+          '<div class="vx-list-row">' +
+            '<div><strong>' + formatClock(entry.time) + '</strong></div>' +
+            '<div class="vx-list-meta">' + entry.message + '</div>' +
+          '</div>'
+        )).join("");
+      }
+
+      function renderInputs() {
+        $("accountSizeInput").value = state.settings.accountSize;
+        $("riskPctInput").value = state.settings.riskPct;
+        $("dailyLossPctInput").value = state.settings.dailyLossPct;
+        $("dayPnlInput").value = state.settings.dayPnl;
+        $("buyBelowInput").value = state.settings.buyBelow;
+        $("sellAboveInput").value = state.settings.sellAbove;
+        $("webhookUrlInput").value = state.settings.webhookUrl;
+
+        document.querySelectorAll("[data-frame]").forEach((button) => {
+          button.classList.toggle("active", button.getAttribute("data-frame") === state.chartFrame);
+        });
+      }
+
+      function renderAll() {
+        renderBanner();
+        renderInputs();
+        renderHero();
+        renderChart();
+        renderMtf();
+        renderOrderFlow();
+        renderForecast();
+        renderBacktest();
+        renderPlaybook();
+        renderRiskPlan();
+        renderAlerts();
+        renderNotes();
+        renderJournal();
+        renderLogs();
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!response.ok) throw new Error("Market request failed: " + response.status);
+        return response.json();
+      }
+
+      async function fetchOverview() {
+        const [ticker, stats] = await Promise.all([
+          fetchJson("https://api.exchange.coinbase.com/products/" + PRODUCT_ID + "/ticker"),
+          fetchJson("https://api.exchange.coinbase.com/products/" + PRODUCT_ID + "/stats")
+        ]);
+        return {
+          ticker: {
+            price: Number(ticker.price),
+            bestBid: Number(ticker.best_bid),
+            bestAsk: Number(ticker.best_ask),
+            lastSize: Number(ticker.last_size),
+            time: ticker.time || Date.now()
+          },
+          stats: {
+            open: Number(stats.open),
+            high: Number(stats.high),
+            low: Number(stats.low),
+            volume: Number(stats.volume)
+          }
+        };
+      }
+
+      async function fetchBook() {
+        const data = await fetchJson("https://api.exchange.coinbase.com/products/" + PRODUCT_ID + "/book?level=2");
+        const bids = (data.bids || []).slice(0, 8).map((level) => ({ price: Number(level[0]), size: Number(level[1]) }));
+        const asks = (data.asks || []).slice(0, 8).map((level) => ({ price: Number(level[0]), size: Number(level[1]) }));
+        const bestBid = bids[0]?.price ?? FALLBACK.bestBid;
+        const bestAsk = asks[0]?.price ?? FALLBACK.bestAsk;
+        const topBidVol = sum(bids.slice(0, 5).map((level) => level.size));
+        const topAskVol = sum(asks.slice(0, 5).map((level) => level.size));
+        return {
+          bids,
+          asks,
+          spread: bestAsk - bestBid,
+          microprice: (bestBid + bestAsk) / 2,
+          topBidVol,
+          topAskVol,
+          imbalance: topBidVol / (topBidVol + topAskVol),
+          delta: state.analytics?.flow?.delta ?? FALLBACK.delta
+        };
+      }
+
+      async function fetchCandles(config) {
+        const raw = await fetchJson("https://api.exchange.coinbase.com/products/" + PRODUCT_ID + "/candles?granularity=" + config.granularity);
+        return raw
+          .map((row) => ({
+            time: Number(row[0]) * 1000,
+            low: Number(row[1]),
+            high: Number(row[2]),
+            open: Number(row[3]),
+            close: Number(row[4]),
+            volume: Number(row[5])
+          }))
+          .filter((candle) => Number.isFinite(candle.close))
+          .sort((a, b) => a.time - b.time)
+          .slice(-config.points);
+      }
+
+      async function syncMarket(reason) {
+        const neededKeys = Array.from(new Set([state.chartFrame].concat(Object.keys(ANALYSIS_FRAMES))));
+        try {
+          const [overview, book, allFrames] = await Promise.all([
+            fetchOverview(),
+            fetchBook(),
+            Promise.all(neededKeys.map(async (key) => {
+              const config = CHART_FRAMES[key] || ANALYSIS_FRAMES[key];
+              return { key, candles: await fetchCandles(config) };
+            }))
+          ]);
+
+          state.ticker.price = overview.ticker.price || state.ticker.price;
+          state.ticker.bestBid = overview.ticker.bestBid || state.ticker.bestBid;
+          state.ticker.bestAsk = overview.ticker.bestAsk || state.ticker.bestAsk;
+          state.ticker.lastSize = overview.ticker.lastSize || state.ticker.lastSize;
+          state.ticker.time = overview.ticker.time || Date.now();
+          state.stats = overview.stats;
+          state.book = book;
+          allFrames.forEach((item) => {
+            state.frames[item.key] = item.candles;
+          });
+          state.lastSync = Date.now();
+          state.bootMode = "Live polling";
+          pushLog("Synced live BTC market data" + (reason === "manual" ? " on demand." : "."), "info");
+        } catch (error) {
+          state.bootMode = "Seeded fallback";
+          pushLog("Live sync delayed. Staying on seeded BTC data.", "warn");
+        }
+
+        scheduleRebuild();
+      }
+
+      async function syncBookOnly() {
+        try {
+          state.book = await fetchBook();
+        } catch {
+          return;
+        }
+        scheduleRebuild();
+      }
+
+      function connectFeed() {
+        try {
+          const ws = new WebSocket("wss://ws-feed.exchange.coinbase.com");
+          state.ws = ws;
+
+          ws.addEventListener("open", () => {
+            state.wsConnected = true;
+            ws.send(JSON.stringify({
+              type: "subscribe",
+              product_ids: [PRODUCT_ID],
+              channels: ["ticker"]
+            }));
+            renderBanner();
+            pushLog("Coinbase WebSocket connected.", "info");
+            renderLogs();
+          });
+
+          ws.addEventListener("message", (event) => {
+            try {
+              const message = JSON.parse(event.data);
+              if (message.type !== "ticker" || message.product_id !== PRODUCT_ID) return;
+              const price = Number(message.price);
+              if (!Number.isFinite(price)) return;
+
+              const previousPrice = state.ticker.price;
+              state.ticker.price = price;
+              state.ticker.bestBid = Number(message.best_bid) || state.ticker.bestBid;
+              state.ticker.bestAsk = Number(message.best_ask) || state.ticker.bestAsk;
+              state.ticker.lastSize = Number(message.last_size) || state.ticker.lastSize;
+              state.ticker.time = message.time || Date.now();
+              state.liveTicks.push({
+                ts: Date.now(),
+                price,
+                side: message.side || "buy",
+                size: Number(message.last_size) || 0
+              });
+              state.liveTicks = state.liveTicks.slice(-300);
+
+              if (Number.isFinite(previousPrice)) {
+                const tickMove = percentMove(price, previousPrice);
+                if (Number.isFinite(tickMove) && Math.abs(tickMove) >= 0.12) {
+                  pushLog("Fast move " + signedPercent(tickMove) + " to " + money(price) + ".", tickMove >= 0 ? "buy" : "sell");
+                }
+              }
+
+              scheduleRebuild();
+            } catch {
+              return;
+            }
+          });
+
+          ws.addEventListener("close", () => {
+            state.wsConnected = false;
+            renderBanner();
+            pushLog("WebSocket disconnected. Polling remains active.", "warn");
+            renderLogs();
+            setTimeout(connectFeed, 4000);
+          });
+
+          ws.addEventListener("error", () => {
+            state.wsConnected = false;
+            renderBanner();
+          });
+        } catch {
+          state.wsConnected = false;
+        }
+      }
+
+      function bootClock() {
+        $("deskClock").textContent = formatClock();
+        clearInterval(state.deskClockTimer);
+        state.deskClockTimer = setInterval(() => {
+          $("deskClock").textContent = formatClock();
+        }, 1000);
+      }
+
+      function armTimers() {
+        clearInterval(state.pollTimer);
+        clearInterval(state.bookTimer);
+        clearInterval(state.outboxTimer);
+        state.pollTimer = setInterval(() => syncMarket("scheduled"), POLL_MS);
+        state.bookTimer = setInterval(syncBookOnly, BOOK_MS);
+        state.outboxTimer = setInterval(flushOutbox, OUTBOX_MS);
+      }
+
+      function saveRiskSettings() {
+        state.settings.accountSize = $("accountSizeInput").value.trim();
+        state.settings.riskPct = $("riskPctInput").value.trim();
+        state.settings.dailyLossPct = $("dailyLossPctInput").value.trim();
+        state.settings.dayPnl = $("dayPnlInput").value.trim();
+        persistState();
+        scheduleRebuild();
+      }
+
+      async function saveAlertSettings() {
+        state.settings.buyBelow = $("buyBelowInput").value.trim();
+        state.settings.sellAbove = $("sellAboveInput").value.trim();
+        state.settings.webhookUrl = $("webhookUrlInput").value.trim();
+        state.flags.buyBelow = false;
+        state.flags.sellAbove = false;
+        persistState();
+        renderAlerts();
+
+        if (state.settings.notifications && "Notification" in window && Notification.permission === "default") {
+          try {
+            await Notification.requestPermission();
+          } catch {
+            return;
+          }
+        }
+      }
+
+      function attachEvents() {
+        document.querySelectorAll("[data-frame]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.chartFrame = button.getAttribute("data-frame");
+            persistState();
+            renderInputs();
+            scheduleRebuild();
+            syncMarket("manual");
+          });
+        });
+
+        $("refreshBtn").addEventListener("click", () => syncMarket("manual"));
+        $("saveRiskBtn").addEventListener("click", saveRiskSettings);
+        $("applyAlertsBtn").addEventListener("click", saveAlertSettings);
+
+        $("toggleNotificationsBtn").addEventListener("click", async () => {
+          state.settings.notifications = !state.settings.notifications;
+          persistState();
+          renderAlerts();
+          if (state.settings.notifications && "Notification" in window && Notification.permission === "default") {
+            try {
+              await Notification.requestPermission();
+            } catch {
+              return;
+            }
+          }
+        });
+
+        $("toggleSoundBtn").addEventListener("click", () => {
+          state.settings.sound = !state.settings.sound;
+          persistState();
+          renderAlerts();
+        });
+
+        $("toggleWebhookBtn").addEventListener("click", () => {
+          state.settings.webhookEnabled = !state.settings.webhookEnabled;
+          state.settings.webhookUrl = $("webhookUrlInput").value.trim();
+          persistState();
+          renderAlerts();
+          flushOutbox();
+        });
+
+        $("testWebhookBtn").addEventListener("click", () => {
+          state.settings.webhookUrl = $("webhookUrlInput").value.trim();
+          if (!state.settings.webhookEnabled || !state.settings.webhookUrl) {
+            $("alertStatus").textContent = "Enable webhook relay and set a webhook URL first.";
+            return;
+          }
+          queueWebhook({
+            source: "velocity-desk-scratch",
+            message: "Velocity Desk webhook test",
+            tone: "info",
+            createdAt: new Date().toISOString(),
+            price: state.ticker.price
+          });
+          renderAlerts();
+          flushOutbox();
+        });
+
+        window.addEventListener("beforeunload", persistState);
+      }
+
+      function init() {
+        ensureFrames();
+        attachEvents();
+        bootClock();
+        renderAll();
+        pushLog("Scratch rebuild loaded with seeded BTC data.", "info");
+        renderLogs();
+        armTimers();
+        scheduleRebuild();
+        syncMarket("boot");
+        connectFeed();
+      }
+
+      init();
+    })();
+  </script>
 </body>
 </html>

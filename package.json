@@ -1,11 +1,19 @@
 {
   "name": "velocity-desk",
   "version": "1.0.0",
-  "description": "Hedge-fund-inspired BTC/USD trading terminal with live order-flow, multi-timeframe scoring, scenario forecasts, and risk overlays.",
+  "description": "Static, hedge-fund-style BTC/USD trading desk with seeded fallback data, live Coinbase reads, forecasts, risk sizing, and journaling.",
   "type": "module",
   "scripts": {
     "dev": "python3 -m http.server 4173",
     "start": "python3 -m http.server 4173"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pickyvicky26/Build-Bitcoin-trading-tracker.git"
+  },
+  "homepage": "https://github.com/Pickyvicky26/Build-Bitcoin-trading-tracker",
+  "bugs": {
+    "url": "https://github.com/Pickyvicky26/Build-Bitcoin-trading-tracker/issues"
   },
   "keywords": [
     "bitcoin",
@@ -14,6 +22,8 @@
     "dashboard",
     "order-flow",
     "backtesting",
+    "risk-management",
+    "static-site",
     "frontend"
   ],
   "license": "MIT"

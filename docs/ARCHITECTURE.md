@@ -1,120 +1,124 @@
 # Architecture Overview
 
+## Current Runtime
+
+The active root app is a single-file static implementation in `index.html`.
+
+That is the current production path for the repository. It was rebuilt this way to guarantee:
+
+- seeded data is visible immediately
+- no blank screen if a module chain fails
+- simple static deployment
+- easier GitHub review
+- minimal browser/runtime assumptions
+
 ## Design Goal
 
-The repo is structured as a static frontend project with clear separation between:
+Velocity Desk is intentionally static-first. The architecture optimizes for:
 
-- configuration
-- data acquisition
-- analytics
-- persistence
-- rendering
-- application orchestration
+- compatibility
+- readability
+- simple deployment
+- trader-facing outputs instead of framework complexity
 
-This keeps the project readable on GitHub and makes later migration to a backend or charting platform straightforward.
+The app is designed to feel operational, not overengineered.
 
-## File Responsibilities
+## Root File Responsibilities
 
 ### `index.html`
 
-- Defines the application shell and all visible dashboard sections
-- Keeps the visual styling co-located for simple static deployment
-- Loads the application through a single module entrypoint
+The root file now contains all active runtime concerns:
 
-### `src/main.js`
+- application shell and styling
+- seeded fallback BTC data
+- local state bootstrap
+- Coinbase polling and WebSocket hooks
+- indicator math and signal scoring
+- backtest and forecast generation
+- risk sizing
+- alert handling
+- journal state
+- SVG chart rendering
 
-- Bootstraps the app
-- Creates a single runtime instance
+This is the file GitHub readers should treat as the live implementation.
 
-### `src/js/config.js`
+## Runtime Sections Inside `index.html`
 
-- Shared constants
-- Frame configuration
-- Refresh timing
-- Backtest horizon metadata
+The inline script is organized into these practical layers:
 
-### `src/js/utils.js`
+### State and persistence
 
-- Formatting helpers
-- Indicator math
-- DOM helpers
-- Small reusable numeric utilities
+- local storage restore and save
+- seeded fallback state
+- alert and journal persistence trimming
 
-### `src/js/storage.js`
+### Market data
 
-- Local storage load and save
-- Initial state construction
-- Persistence trimming for journals and alert queues
+- Coinbase REST polling for ticker, stats, book, and candles
+- optional WebSocket ticker flow
+- graceful fallback to seeded data
 
-### `src/js/market-data.js`
+### Analytics
 
-- REST calls for candles, ticker stats, and level 2 book data
-- WebSocket setup for live ticker flow
-- Exchange-specific data normalization
+- EMA, RSI, MACD, ATR, slope, and simple order-flow calculations
+- per-frame signal scoring
+- multi-timeframe blending
+- rolling backtest estimation
+- scenario forecast generation
+- risk-plan derivation
 
-### `src/js/analytics.js`
+### Rendering
 
-- Order-flow analytics
-- Per-frame signal analysis
-- Multi-timeframe aggregation
-- Rolling backtest
-- Forecast generation
-- Risk sizing and playbook derivation
-- Desk narrative notes
+- banner and hero updates
+- chart rendering through SVG
+- board, forecast, playbook, notes, journal, and log updates
 
-### `src/js/render.js`
+### Operations
 
-- DOM rendering layer
-- Chart SVG generation
-- Dashboard card rendering
-- Journal, notes, alerts, and playbook visualization
+- timer scheduling
+- refresh handling
+- alert triggering
+- webhook queue flushing
+- browser notification requests
 
-### `src/js/app.js`
+## Data Flow
 
-- State orchestration
-- Sync scheduling
-- Live feed handling
-- Alert processing
-- Journal resolution
-- Event wiring
-- Render coordination
+1. Seed fallback BTC data is loaded immediately.
+2. The app renders a usable desk before any network calls complete.
+3. Coinbase polling updates ticker, stats, book, and candles when available.
+4. Optional WebSocket ticks enrich short-term tape behavior.
+5. Analytics rebuild the desk state.
+6. Render passes update the visible dashboard.
+7. Alerts, settings, and journal state persist locally in the browser.
 
-## Runtime Flow
+## Why `src/` Still Exists
 
-1. `src/main.js` creates the app.
-2. `app.init()` attaches listeners, boots the clock, restores persisted state, and starts the data loops.
-3. `market-data.js` fetches candles, stats, and book snapshots.
-4. `analytics.js` scores the market and builds risk/forecast outputs.
-5. `render.js` updates the dashboard.
-6. Alert state, journal state, and user settings are persisted through `storage.js`.
+The `src/` tree is retained as legacy/reference code from the earlier modular production pass.
 
-## Naming and Modularity Changes
+It is still useful because it shows:
 
-The production pass cleaned up several issues from the single-file prototype:
+- a more separated code organization
+- clean boundaries between data, analytics, render, and storage
+- a possible future direction if the app moves back to a modular runtime
 
-- Extracted runtime logic from the HTML bundle into modules
-- Standardized analytical timeframe naming to avoid collisions with display timeframes
-- Centralized shared constants
-- Separated rendering from analytics
-- Separated exchange I/O from model logic
-- Preserved the dashboard while making the code reviewable
+But for the current repository state, `src/` is not the active root implementation.
 
 ## Extension Points
 
-The current structure is intentionally ready for the next step:
+The easiest next upgrades are:
 
-- Replace Coinbase with a feed adapter layer
-- Move analytics into a worker or backend
-- Publish the model through an API
-- Add persistent journaling and alert delivery
-- Add a Pine Script or Python companion implementation
+- move live analytics into a Web Worker
+- replace browser-queued webhooks with a small backend alert relay
+- add exchange aggregation instead of Coinbase-only reads
+- store journal outcomes in a backend or database
+- expose the signal model through a Python or Pine Script companion
 
 ## Deployment Model
 
-This project is static-first:
+The project remains static-host friendly:
 
-- No build step required
-- No server dependency required for the UI
-- Easy deployment to GitHub Pages or any static host
+- no build step required
+- no custom backend required for the UI
+- compatible with GitHub Pages and similar hosts
 
-The only runtime dependency is browser access to Coinbase APIs and any optional webhook endpoint you configure.
+The only live dependency is browser access to Coinbase plus any optional webhook endpoint you configure.

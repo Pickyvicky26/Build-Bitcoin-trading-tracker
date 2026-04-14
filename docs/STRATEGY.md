@@ -2,48 +2,48 @@
 
 ## Overview
 
-Velocity Desk is a discretionary signal framework for BTC/USD. It is not an execution bot and it is not a fully statistical alpha model. The goal is to compress the workflow of an active trader into a browser-native decision surface that answers five questions quickly:
+Velocity Desk is a discretionary BTC/USD signal framework. It is not an execution bot and it is not pretending to be institutional alpha research. Its job is simpler: compress the workflow of an active trader into a browser-native desk that answers these questions fast:
 
-1. What is the market doing right now?
-2. Is the move aligned across timeframes?
-3. Is order flow confirming or fading the move?
-4. What has happened historically in similar conditions?
-5. How much risk should be deployed if a trade is taken?
+1. What is BTC doing right now?
+2. Are short and higher timeframes aligned?
+3. Is order flow helping the move or fading it?
+4. What have similar setups done recently?
+5. How should size, stop, and target look if a trade is taken?
 
 ## Inputs
 
-The desk consumes four categories of inputs:
+The current scratch rebuild consumes four practical input groups:
 
-- Candle history from Coinbase across chart and analytical timeframes
-- Live ticker updates from the Coinbase WebSocket feed
-- Level 2 order-book snapshots for spread, imbalance, and microprice
-- User-defined risk settings and alert thresholds stored in local state
+- seeded fallback BTC data so the desk is visible instantly
+- Coinbase candles across chart and analytical timeframes
+- Coinbase ticker and order-book state for spread and tape context
+- user-defined risk and alert settings stored in browser local storage
 
-## Timeframe Model
+## Analytical Frames
 
-The analytical stack uses:
+The strategy stack tracks:
 
 - `T5M`
 - `T15M`
 - `T1H`
 - `T4H`
 
-Each frame is scored independently, then blended into a combined bias. The selected chart timeframe is rendered separately for operator context.
+Each frame is analyzed independently, then blended into a combined desk bias.
 
 ## Per-Frame Signal Logic
 
-Every analytical frame computes:
+Each frame uses a lightweight but trader-readable score built from:
 
-- EMA 9, EMA 21, and EMA 55 structure
-- RSI 14 state
-- MACD histogram impulse
-- ATR-based volatility pressure
-- VWAP relation
-- Short-term slope and drift
-- Breakout and breakdown distance versus the recent range
-- Volume impulse versus a 20-bar baseline
+- EMA 8 versus EMA 21
+- EMA 21 versus EMA 55
+- RSI 14 location
+- MACD histogram direction
+- ATR pressure
+- short regression slope
+- recent range positioning
+- optional order-flow tilt
 
-These factors are compressed into a 0-100 frame score and translated into a desk-readable action:
+Those inputs are compressed into a 0-100 score and mapped into:
 
 - `Strong Buy`
 - `Buy`
@@ -53,103 +53,103 @@ These factors are compressed into a 0-100 frame score and translated into a desk
 
 ## Multi-Timeframe Combination
 
-The combined signal applies fixed weights:
+The desk combines frame scores using fixed weights:
 
-- `T5M`: 22%
-- `T15M`: 24%
-- `T1H`: 29%
+- `T5M`: 20%
+- `T15M`: 25%
+- `T1H`: 30%
 - `T4H`: 25%
 
-That weighted score is then adjusted by:
+That combined score is then adjusted by:
 
-- Order-flow score
-- Frame agreement boost
-- A moderation pass when bullish and bearish counts are too balanced
-- A moderation pass when the selected chart structure conflicts with stacked higher-timeframe direction
+- book imbalance
+- one-minute delta
+- current order-flow pressure
 
-The result is the desk-wide bias shown in the hero panel and playbook.
+This produces the top-level desk bias shown in the signal card, banner, forecast deck, and playbook.
 
 ## Order-Flow Layer
 
-The order-flow read is intentionally lightweight and fast. It tracks:
+The current implementation keeps order flow intentionally lightweight:
 
-- Bid/ask imbalance
-- One-minute buy/sell delta
-- Largest recent print
-- Spread in basis points
-- Microprice edge
-- Top-of-book liquidity pressure
+- bid/ask imbalance
+- one-minute delta from live ticks
+- spread
+- microprice proxy
+- tape speed
+- largest recent trade print
 
-This becomes a separate `flowScore` which both informs the desk narrative and modifies the combined multi-timeframe score.
+This is not a true high-frequency market-microstructure model. It is a fast trader-friendly confirmation layer.
 
 ## Backtest Layer
 
-The rolling backtest is run on the 5-minute base tape. It:
+The rolling backtest works off the 5-minute base tape. It:
 
-1. Replays historical frame analysis after a warmup period.
-2. Records directional signals only when the model is non-neutral.
-3. Measures future performance at 15m, 1h, and 4h horizons.
-4. Computes sample size, win rate, average return, profit factor, and drawdown.
-5. Separately tracks "similar" cases near the current signal score and direction.
+1. Replays signal logic after a warmup period.
+2. Keeps only directional cases.
+3. Evaluates forward outcomes at 15m, 1h, and 4h horizons.
+4. Builds simple win-rate, average-return, drawdown, and sample-size context.
+5. Biases toward cases with similar current score and direction.
 
-This does not make the model predictive by itself, but it does force the signal engine to justify itself with historical context.
+The purpose is calibration, not scientific validation.
 
 ## Forecast Layer
 
-Forecast cards are scenario projections rather than guaranteed predictions. They combine:
+Forecasts are scenario cards, not guarantees. Each horizon blends:
 
-- Current combined score
-- Trend and drift
-- Live tape slope
-- Order-flow delta
-- Horizon-specific scaling
-- Historical win-rate edge from similar backtest cases
+- current combined score
+- ATR pressure
+- order-flow edge
+- horizon scaling
+- backtest win-rate context
 
-Each card outputs:
+Each forecast outputs:
 
-- Projected price
-- Move percentage
-- Probability proxy
-- Forecast band
+- projected price
+- move percentage
+- probability proxy
+- trader note for the horizon
 
 ## Risk Framework
 
-The risk layer translates bias into actual trade structure:
+The risk layer turns the signal into a usable playbook using:
 
-- Account size
-- Risk percentage per trade
-- Daily loss limit
-- Current day P/L
+- account size
+- risk per trade
+- max daily loss
+- current day P/L
 
 From there, the desk derives:
 
-- Breakout long setup
-- Pullback long setup
-- Defensive sell setup
+- entry
+- stop
+- target
+- stop distance
+- reward/risk ratio
+- BTC size
+- notional exposure
+- daily lockout state
 
-Each setup includes entry, stop, target, notional exposure, capital usage, leverage pressure, and reward-to-risk ratio. If day P/L breaches the configured daily stop, the desk enters lockout mode.
+## Journal And Alerts
 
-## Journal and Alerts
+The journal records signal changes and resolves them on a one-hour review horizon. Alerts can trigger on:
 
-The journal records signal changes and resolves them on a one-hour review horizon. Alerts can fire on:
-
-- Buy-below threshold
-- Sell-above threshold
-- Signal-state change
-- Optional browser notification
-- Optional webhook queue delivery
+- buy-below threshold
+- sell-above threshold
+- optional desktop notification
+- optional webhook queue relay
 
 ## Limitations
 
-- The strategy is heuristic and discretionary, not a production-grade institutional model.
-- Backtests are simplified and do not include slippage, fees, or full regime conditioning.
-- Coinbase-only data means the desk is not exchange-aggregated.
-- Browser persistence is convenient, but it is not a substitute for a hardened backend.
+- This is heuristic and discretionary.
+- Backtests are simplified and do not model slippage or fees.
+- Coinbase-only data means no exchange aggregation.
+- Browser persistence is convenient, but not hardened infrastructure.
 
-## If You Want to Push It Further
+## Next Steps If You Want To Push It Further
 
-- Port the model logic into Pine Script for chart-native overlays and alerts
-- Add exchange aggregation and higher-quality market-depth feeds
-- Move alerts and journaling into a backend service
-- Build proper event storage and replay for deeper research
-- Add walk-forward validation and transaction-cost modeling
+- port the model into Pine Script for chart-native overlays
+- move journaling and alerts into a backend service
+- upgrade order-flow inputs with deeper market-depth data
+- add proper event storage and replay
+- add walk-forward validation and transaction-cost assumptions
